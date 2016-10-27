@@ -1,0 +1,36 @@
+# Config template for GP
+GP:
+  nb_outputs: {nb_outputs:d}
+  config:
+    hyp:
+      lik: {hyp_lik:f}
+      mean: []
+      cov: {hyp_cov!r}
+    batch_size: {batch_size:d}
+    nb_train_samples: {nb_train_samples:d}
+    inf: infExact
+    lik: likGauss
+    dlik: dlikExact
+    mean: meanZero
+    cov: cov{cov!s}
+    grid_kwargs: null
+    update_grid: null
+
+# Config template for MSGP
+MSGP:
+  nb_outputs: {nb_outputs:d}
+  config:
+    hyp:
+      lik: {hyp_lik:f}
+      mean: []
+      cov: {hyp_cov!r}
+    batch_size: {batch_size:d}
+    nb_train_samples: {nb_train_samples:d}
+    inf: infGrid
+    lik: likGauss
+    dlik: dlikGrid
+    mean: meanZero
+    cov: cov{cov!s}
+    opt: {opt!s}
+    grid_kwargs: {grid_kwargs!r}
+    update_grid: {update_grid:b}

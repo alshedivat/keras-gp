@@ -1,0 +1,37 @@
+# Templates for NARX models
+
+0H:
+  input_shape: !!python/tuple {input_shape!r}
+  output_shape: !!python/tuple {output_shape!r}
+  hidden_layers: []
+
+1H:
+  input_shape: !!python/tuple {input_shape!r}
+  output_shape: !!python/tuple {output_shape!r}
+  hidden_layers:
+  - name: Dense
+    config:
+      name: H
+      activation: {H_activation!r}
+      output_dim: {H_dim:d}
+    dropout: {dropout:f}
+    batch_norm: {batch_norm!s}
+
+2H:
+  input_shape: !!python/tuple {input_shape!r}
+  output_shape: !!python/tuple {output_shape!r}
+  hidden_layers:
+  - name: Dense
+    config:
+      name: H1
+      activation: {H_activation!r}
+      output_dim: {H_dim:d}
+    dropout: {dropout:f}
+    batch_norm: {batch_norm!s}
+  - name: Dense
+    config:
+      name: H2
+      activation: {H_activation!r}
+      output_dim: {H_dim:d}
+    dropout: {dropout:f}
+    batch_norm: {batch_norm!s}

@@ -1,0 +1,41 @@
+# Templates for RNN models
+
+1H:
+  input_shape: !!python/tuple {input_shape!r}
+  output_shape: !!python/tuple {output_shape!r}
+  hidden_layers:
+  - name: SimpleRNN
+    config:
+      name: H
+      activation: {H_activation!r}
+      return_sequences: False
+      output_dim: {H_dim:d}
+      dropout_W: {dropout_W:f}
+      dropout_U: {dropout_U:f}
+    dropout: {dropout:f}
+    batch_norm: {batch_norm!s}
+
+2H:
+  input_shape: !!python/tuple {input_shape!r}
+  output_shape: !!python/tuple {output_shape!r}
+  hidden_layers:
+  - name: SimpleRNN
+    config:
+      name: H1
+      activation: {H_activation!r}
+      return_sequences: True
+      output_dim: {H_dim:d}
+      dropout_W: {dropout_W:f}
+      dropout_U: {dropout_U:f}
+    dropout: {dropout:f}
+    batch_norm: {batch_norm!s}
+  - name: SimpleRNN
+    config:
+      name: H2
+      activation: {H_activation!r}
+      return_sequences: False
+      output_dim: {H_dim:d}
+      dropout_W: {dropout_W:f}
+      dropout_U: {dropout_U:f}
+    dropout: {dropout:f}
+    batch_norm: {batch_norm!s}

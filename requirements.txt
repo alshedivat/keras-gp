@@ -1,0 +1,5 @@
+six
+keras>=1.0
+numpy>=1.5
+oct2py>=3.5.6
+theano>=0.8.2
