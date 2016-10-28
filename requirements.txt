@@ -1,4 +1,5 @@
 six
+h5py
 keras>=1.0
 numpy>=1.5
 oct2py>=3.5.6

@@ -38,13 +38,7 @@ class GPML(object):
             if 'GP_ENGINE' in os.environ:
                 engine = os.environ['GP_ENGINE']
             else:
-                raise ValueError("GP_ENGINE is not provided and not available "
-                                 "in the environment.")
-        if gpml_path is None:
-            if 'GPML_PATH' in os.environ:
-                gpml_path = os.environ['GPML_PATH']
-            else:
-                raise ValueError("GPML_PATH is not provided and not available "
+                raise ValueError("GP_ENGINE is neither provided nor available "
                                  "in the environment.")
         if engine == 'matlab':
             from .engines import MATLABEngine as Engine
@@ -52,6 +46,18 @@ class GPML(object):
             from .engines import OctaveEngine as Engine
         else:
             raise ValueError('Unknown GP_ENGINE: %s' % engine)
+
+        if gpml_path is None:
+            if 'GPML_PATH' in os.environ:
+                gpml_path = os.environ['GPML_PATH']
+            else:
+                current_dir = os.path.dirname(os.path.realpath(__file__))
+                gpml_path = os.path.join(current_dir, 'gpml')
+                if not os.path.isfile(os.path.join(gpml_path, 'startup.m')):
+                    raise ValueError(
+                        "Neither GPML_PATH is provided nor GPML library is "
+                        "available directly from KGP. "
+                        "Please make sure you cloned KGP *recursively*.")
 
         self.eng = Engine(**engine_kwargs)
         self.eng.addpath(gpml_path)
