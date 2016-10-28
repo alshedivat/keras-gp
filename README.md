@@ -9,8 +9,8 @@ The models can be trained in stages or jointly, using full-batch or semi-stochas
 
 KGP is compatible with: Python **2.7-3.5**.
 
-This package implements the method described in our paper:
-[i]Learning Scalable Deep Kernels with Recurrent Structure[/i] <br>
+This package implements the method described in our paper: <br>
+Learning Scalable Deep Kernels with Recurrent Structure <br>
 Maruan Al-Shedivat, Andrew Gordon Wilson, Yunus Saatchi, Zhiting Hu, Eric P. Xing <br>
 [arXiv:1610.08936](https://arxiv.org/abs/1610.08936), 2016.
 
