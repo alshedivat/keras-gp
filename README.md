@@ -2,10 +2,10 @@ Gaussian Processes for Keras
 ----------------------------
 
 KGP extends [Keras](https://github.com/fchollet/keras/) with Gaussian Process (GP) layers.
-It allows to build flexible GP models with kernels structured with [deep](https://arxiv.org/abs/1511.02222) and [recurrent]() networks built with Keras.
+It allows to build flexible GP models with kernels structured with [deep](https://arxiv.org/abs/1511.02222) and [recurrent](https://arxiv.org/abs/1610.08936) networks built with Keras.
 The structured part of the model (the neural net) runs on [Theano](http://deeplearning.net/software/theano/) or [Tensorflow](https://www.tensorflow.org/).
 The GP layers use a custom backend based on [GPML 4.0](http://www.gaussianprocess.org/gpml/code/matlab/doc/) library.
-The models can be trained in stages or jointly, using full-batch or semi-stochastic optimization approaches (see [the original paper]()).
+The models can be trained in stages or jointly, using full-batch or semi-stochastic optimization approaches (see [the original paper](https://arxiv.org/abs/1610.08936)).
 
 KGP is compatible with: Python **2.7-3.5**.
 
@@ -43,15 +43,17 @@ model.compile(optimizer=Adam(1e-2), loss=loss)
 
 Note that KGP models support arbitrary off-the-shelf optimizers from Keras.
 
-Further resources:
+**Further resources:**
 - [Tutorials](https://github.com/alshedivat/kgp/tutorials) (*to be added soon*).
-- A couple of [examples](https://github.com/alshedivat/kgp/examples).
+- A couple of [examples](https://github.com/alshedivat/kgp/tree/master/examples).
 
 
 ## Installation
 
-KGP depends on [Keras](https://github.com/fchollet/keras/) and requires either Theano or Tensorflow being installed.
+KGP depends on [Keras](https://github.com/fchollet/keras/) and requires either [Theano](http://deeplearning.net/software/theano/) or [Tensorflow](http://tensorflow.org/) being installed.
 The GPML backend requires either MATLAB or Octave and a corresponding Python interface package: [Oct2Py](https://blink1073.github.io/oct2py/) for Octave or the [MATLAB engine for Python](https://www.mathworks.com/help/matlab/matlab-engine-for-python.html).
+Generally, MATLAB backend seems to provide faster runtime.
+However, if you compile the latest version of Octave with JIT and OpenBLAS support, the overhead gets reduced to minimum.
 
 The requirements can be installed via [pip](https://pypi.python.org/pypi/pip) as follows (use `sudo` if necessary):
 
@@ -68,11 +70,13 @@ $ python setup.py develop [--user]
 ```
 
 The `--user` flag (optional) will install the package for a given user only.
-Note that recursive clone is required to get GPML library as a submodule.
+
+**Note:** Recursive clone is required to get GPML library as a submodule.
+If you already have a copy of GPML, you can set `GPML_PATH` environment variable to point to your GPML folder instead.
 
 ## Contribution
 
-Contributions are sought. Bug reports are welcome.
+Contributions and especially bug reports are more than welcome.
 
 ## Citation
 
@@ -80,6 +84,7 @@ Contributions are sought. Bug reports are welcome.
 @article{alshedivat2016srk,
   title={Learning Scalable Deep Kernels with Recurrent Structure},
   author={Al-Shedivat, Maruan and Wilson, Andrew G and Saatchi, Yunus and Hu, Zhiting and Xing, Eric P},
+  journal={arXiv preprint arXiv:1610.08936},
   year={2016}
 }
 ```
