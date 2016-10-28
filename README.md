@@ -2,10 +2,10 @@ Gaussian Processes for Keras
 ----------------------------
 
 KGP extends [Keras](https://github.com/fchollet/keras/) with Gaussian Process (GP) layers.
-It allows to build flexible GP models with kernels structured with [deep](https://arxiv.org/abs/1511.02222) and [recurrent](https://arxiv.org/abs/1610.08936) networks built with Keras.
+It allows one to build flexible GP models with kernels structured with [deep](http://jmlr.org/proceedings/papers/v51/wilson16.pdf) and [recurrent](https://arxiv.org/abs/1610.08936) networks built with Keras.
 The structured part of the model (the neural net) runs on [Theano](http://deeplearning.net/software/theano/) or [Tensorflow](https://www.tensorflow.org/).
 The GP layers use a custom backend based on [GPML 4.0](http://www.gaussianprocess.org/gpml/code/matlab/doc/) library.
-The models can be trained in stages or jointly, using full-batch or semi-stochastic optimization approaches (see [the original paper](https://arxiv.org/abs/1610.08936)).
+The models can be trained in stages or jointly, using full-batch or semi-stochastic optimization approaches (see https://arxiv.org/abs/1610.08936).
 
 KGP is compatible with: Python **2.7-3.5**.
 
@@ -91,6 +91,5 @@ Contributions and especially bug reports are more than welcome.
 
 ## License
 
-MIT (for details, please refer to [LICENSE](https://github.com/alshedivat/kgp/blob/master/LICENSE))
+For questions about the code and licensing details, please contact Maruan Al-Shedivat and Andrew Gordon Wilson.
 
-Copyright (c) 2016 Maruan Al-Shedivat
