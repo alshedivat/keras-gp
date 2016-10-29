@@ -6,6 +6,9 @@ It allows one to build flexible GP models with kernels structured with [deep](ht
 The structured part of the model (the neural net) runs on [Theano](http://deeplearning.net/software/theano/) or [Tensorflow](https://www.tensorflow.org/).
 The GP layers use a custom backend based on [GPML 4.0](http://www.gaussianprocess.org/gpml/code/matlab/doc/) library, and builds on [KISS-GP](http://www.jmlr.org/proceedings/papers/v37/wilson15.pdf) and [extensions](https://arxiv.org/abs/1511.01870).
 The models can be trained in stages or jointly, using full-batch or semi-stochastic optimization approaches (see [our paper](https://arxiv.org/abs/1610.08936)).
+For additional resources on Deep Kernel Learning and KISS-GP see
+[https://people.orie.cornell.edu/andrew/code/](https://people.orie.cornell.edu/andrew/code/)
+
 
 KGP is compatible with: Python **2.7-3.5**.
 
