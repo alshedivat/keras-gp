@@ -1,13 +1,55 @@
 """
 Interface for system identification data (Actuator and Drives).
 """
+from __future__ import print_function
+
 import os
 import sys
-import numpy as np
+import zipfile
+import warnings
 
+import numpy as np
+import scipy.io as sio
+
+from six.moves import urllib
 from six.moves import cPickle as pkl
 
-def load_data(name, t_step=1, start=0., stop=100.,
+SOURCE_URLS = {
+    'actuator': 'http://www.iau.dtu.dk/nnbook/Files/actuator.mat',
+    'drives':   'http://www.it.uu.se/research/publications/reports/2010-020/'
+                'NonlinearData.zip',
+}
+
+
+def maybe_download(data_path, dataset_name, verbose=1):
+    source_url = SOURCE_URLS[dataset_name]
+    datadir_path = os.path.join(data_path, 'sysid')
+    dataset_path = os.path.join(datadir_path, dataset_name + '.mat')
+
+    # Create directories (if necessary)
+    if not os.path.isdir(datadir_path):
+        os.makedirs(datadir_path)
+
+    # Download & extract the data (if necessary)
+    if not os.path.isfile(dataset_path):
+        if dataset_name == 'actuator':
+            urllib.request.urlretrieve(source_url, dataset_path)
+        if dataset_name == 'drives':
+            assert source_url.endswith('.zip')
+            archive_path = os.path.join(datadir_path, 'tmp.zip')
+            urllib.request.urlretrieve(source_url, archive_path)
+            with zipfile.ZipFile(archive_path, 'r') as zfp:
+                zfp.extract('DATAPRBS.MAT', datadir_path)
+            os.rename(os.path.join(datadir_path, 'DATAPRBS.MAT'), dataset_path)
+            os.remove(archive_path)
+        if verbose:
+            print("Successfully downloaded `%s` dataset from %s." %
+                  (dataset_name, source_url))
+
+    return dataset_path
+
+
+def load_data(dataset_name, t_step=1, start=0., stop=100.,
               use_targets=True, batch_size=None, verbose=1):
     '''Load the system identification data.
 
@@ -21,14 +63,17 @@ def load_data(name, t_step=1, start=0., stop=100.,
         batch_size : uint or None (default: None)
         verbose : uint (default: 1)
     '''
-    if 'DATA_PATH' not in os.environ:
-        raise Exception("Cannot find DATA_PATH variable in the environment. "
-                        "DATA_PATH should be the folder that contains "
-                        "`sysid/` directory with the data. "
-                        "Please export DATA_PATH before loading the data.")
+    if dataset_name not in {'actuator', 'drives'}:
+        raise ValueError("Unknown dataset: %s" % dataset_name)
 
-    dataset_path = os.path.join(os.environ['DATA_PATH'],
-                                'sysid', name + '.pkl')
+    if 'DATA_PATH' not in os.environ:
+        warnings.warn("Cannot find DATA_PATH variable in the environment. "
+                      "Using <current_working_directory>/data/ instead.")
+        DATA_PATH = os.path.join(os.getcwd(), 'data')
+    else:
+        DATA_PATH = os.environ['DATA_PATH']
+
+    dataset_path = maybe_download(DATA_PATH, dataset_name, verbose=verbose)
     if not os.path.exists(dataset_path):
         raise Exception("Cannot find data: %s" % dataset_path)
 
@@ -36,14 +81,17 @@ def load_data(name, t_step=1, start=0., stop=100.,
         sys.stdout.write('Loading data...')
         sys.stdout.flush()
 
-    with open(dataset_path) as fp:
-        data = pkl.load(fp)
+    data_mat = sio.loadmat(dataset_path)
+    if dataset_name == 'actuator':
+        X, Y = data_mat['u'], data_mat['p']
+    if dataset_name == 'drives':
+        X, Y = data_mat['u1'], data_mat['z1']
 
-    start = int((start/100.) * len(data['X']))
-    stop = int((stop/100.) * len(data['X']))
+    start = int((start/100.) * len(X))
+    stop = int((stop/100.) * len(X))
 
-    X = data['X'][start:stop:t_step,:]
-    Y = data['Y'][start:stop:t_step,:]
+    X = X[start:stop:t_step,:]
+    Y = Y[start:stop:t_step,:]
 
     if use_targets:
         X = np.hstack([X, Y])
