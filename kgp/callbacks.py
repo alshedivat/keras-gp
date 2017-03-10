@@ -24,7 +24,7 @@ class UpdateGP(Callback):
         self.batch_size = batch_size
         self.gp_n_iter = gp_n_iter
 
-    def _set_params(self, params):
+    def set_params(self, params):
         self.params = params
         if self.validation_data is not None:
             self.params['metrics'] += ['val_' + m for m in params['metrics']]

@@ -65,7 +65,7 @@ def test_update_gp(seed=42):
         update_gp_callback = UpdateGP((X_tr, Y_tr),
                                       val_ins=(X_val, Y_val),
                                       batch_size=batch_size)
-        update_gp_callback._set_model(model)
+        update_gp_callback.set_model(model)
 
         # Test the callback
         epoch_logs, batch_logs = {}, {}

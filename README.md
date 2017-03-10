@@ -13,7 +13,7 @@ For additional resources and tutorials on Deep Kernel Learning and KISS-GP see
 KGP is compatible with: Python **2.7-3.5**.
 
 In particular, this package implements the method described in our paper: <br>
-Learning Scalable Deep Kernels with Recurrent Structure <br>
+**Learning Scalable Deep Kernels with Recurrent Structure** <br>
 Maruan Al-Shedivat, Andrew Gordon Wilson, Yunus Saatchi, Zhiting Hu, Eric P. Xing <br>
 [arXiv:1610.08936](https://arxiv.org/abs/1610.08936), 2016.
 
@@ -100,4 +100,4 @@ Contributions and especially bug reports are more than welcome.
 
 ## License
 
-For questions about the code and commercial licensing details, please contact [Maruan Al-Shedivat](https://www.cs.cmu.edu/~mshediva/) and [Andrew Gordon Wilson](https://people.orie.cornell.edu/andrew).  
+For questions about the code and licensing details, please contact [Maruan Al-Shedivat](https://www.cs.cmu.edu/~mshediva/) and [Andrew Gordon Wilson](https://people.orie.cornell.edu/andrew).
