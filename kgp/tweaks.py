@@ -10,11 +10,11 @@ import keras.callbacks as cbks
 from keras.engine.training import (make_batches, batch_shuffle, slice_X)
 from .models import Model
 
-def _fit_loop(self, f, ins, out_labels=[], batch_size=32,
-              nb_epoch=100, verbose=1, callbacks=[],
+def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
+              nb_epoch=100, verbose=1, callbacks=None,
               val_f=None, val_ins=None, shuffle=True,
-              callback_metrics=[]):
-    '''Abstract fit function for f(ins).
+              callback_metrics=None, initial_epoch=0):
+    """Abstract fit function for f(ins).
     Assume that f returns a list, labeled by out_labels.
 
     # Arguments
@@ -32,28 +32,31 @@ def _fit_loop(self, f, ins, out_labels=[], batch_size=32,
         callback_metrics: list of strings, the display names of the metrics
             passed to the callbacks. They should be the
             concatenation of list the display names of the outputs of
-            `f` and the list of display names of the outputs of `f_val`.
+             `f` and the list of display names of the outputs of `f_val`.
+        initial_epoch: epoch at which to start training
+            (useful for resuming a previous training run)
 
     # Returns
         `History` object.
 
     [A tweaked version.]
-    '''
+    """
     do_validation = False
     if val_f and val_ins:
         do_validation = True
         if verbose:
             print('Train on %d samples, validate on %d samples' %
-                  (len(ins[0]), len(val_ins[0])))
+                  (ins[0].shape[0], val_ins[0].shape[0]))
 
-    nb_train_sample = len(ins[0])
+    nb_train_sample = ins[0].shape[0]
     index_array = np.arange(nb_train_sample)
 
     self.history = cbks.History()
-    callbacks = [cbks.BaseLogger()] + callbacks + [self.history]
+    callbacks = [cbks.BaseLogger()] + (callbacks or []) + [self.history]
     if verbose:
         callbacks += [cbks.ProgbarLogger()]
     callbacks = cbks.CallbackList(callbacks)
+    out_labels = out_labels or []
 
     # it's possible to callback a different model than self
     # (used by Sequential models)
@@ -62,38 +65,38 @@ def _fit_loop(self, f, ins, out_labels=[], batch_size=32,
     else:
         callback_model = self
 
-    callbacks._set_model(callback_model)
-    callbacks._set_params({
+    callbacks.set_model(callback_model)
+    callbacks.set_params({
         'batch_size': batch_size,
         'nb_epoch': nb_epoch,
         'nb_sample': nb_train_sample,
         'verbose': verbose,
         'do_validation': do_validation,
-        'metrics': callback_metrics,
+        'metrics': callback_metrics or [],
     })
     callbacks.on_train_begin()
     callback_model.stop_training = False
     self.validation_data = val_ins
 
-    for epoch in range(nb_epoch):
-        epoch_logs = {}
-        callbacks.on_epoch_begin(epoch, epoch_logs)
+    for epoch in range(initial_epoch, nb_epoch):
+        callbacks.on_epoch_begin(epoch)
         if shuffle == 'batch':
             index_array = batch_shuffle(index_array, batch_size)
         elif shuffle:
             np.random.shuffle(index_array)
 
         batches = make_batches(nb_train_sample, batch_size)
+        epoch_logs = {}
         for batch_index, (batch_start, batch_end) in enumerate(batches):
             batch_ids = index_array[batch_start:batch_end]
             try:
-                if type(ins[-1]) is float:
+                if isinstance(ins[-1], float):
                     # do not slice the training phase flag
                     ins_batch = slice_X(ins[:-1], batch_ids) + [ins[-1]]
                 else:
                     ins_batch = slice_X(ins, batch_ids)
             except TypeError:
-                raise Exception('TypeError while preparing batch. '
+                raise TypeError('TypeError while preparing batch. '
                                 'If using HDF5 input data, '
                                 'pass shuffle="batch".')
             batch_logs = {}
@@ -102,7 +105,7 @@ def _fit_loop(self, f, ins, out_labels=[], batch_size=32,
             batch_logs['ids'] = batch_ids
             callbacks.on_batch_begin(batch_index, batch_logs)
             outs = f(ins_batch)
-            if type(outs) != list:
+            if not isinstance(outs, list):
                 outs = [outs]
             for l, o in zip(out_labels, outs):
                 batch_logs[l] = o
@@ -116,7 +119,7 @@ def _fit_loop(self, f, ins, out_labels=[], batch_size=32,
                     val_outs = self._test_loop(val_f, val_ins,
                                                batch_size=batch_size,
                                                verbose=0)
-                    if type(val_outs) != list:
+                    if not isinstance(val_outs, list):
                         val_outs = [val_outs]
                     # same labels assumed
                     for l, o in zip(out_labels, val_outs):

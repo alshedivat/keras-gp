@@ -8,10 +8,9 @@ import sys
 import numpy as np
 
 from keras import optimizers
-from keras.models import Model as kModel
+from keras.models import Model as KerasModel
 from keras.engine.topology import to_list
-from keras.engine.training import (standardize_input_data,
-                                   collect_trainable_weights)
+from keras.engine.training import standardize_input_data
 
 from .callbacks import UpdateGP, Timer
 
@@ -19,7 +18,7 @@ from .callbacks import UpdateGP, Timer
 from keras import backend as K
 
 
-class Model(kModel):
+class Model(KerasModel):
     '''Model that supports arbitrary structure with GP output layers.
 
     This class extends `keras.models.Model` and allows using Gaussian Processes
@@ -81,17 +80,23 @@ class Model(kModel):
         h = super(Model, self).predict(x, batch_size, verbose)
         return to_list(h)
 
-    def fit(self, X, Y, batch_size=32, nb_epoch=10, verbose=1, callbacks=[],
+    def fit(self, X, Y, batch_size=32, nb_epoch=10, verbose=1, callbacks=None,
             validation_data=None, shuffle=True, gp_n_iter=1,
             class_weight=None, sample_weight=None):
         # Validate user data
-        X, Y, _ = self._standardize_user_data(X, Y,
-                                              check_batch_dim=False,
-                                              batch_size=batch_size)
+        X, Y, _ = self._standardize_user_data(
+            X, Y,
+            sample_weight=None,
+            class_weight=None,
+            check_batch_axis=False,
+            batch_size=batch_size)
         if validation_data is not None:
-            X_val, Y_val, _ = self._standardize_user_data(*validation_data,
-                                                          check_batch_dim=False,
-                                                          batch_size=batch_size)
+            X_val, Y_val, _ = self._standardize_user_data(
+                *validation_data,
+                sample_weight=None,
+                class_weight=None,
+                check_batch_axis=False,
+                batch_size=batch_size)
             validation_data = (X_val, Y_val)
 
         # Setup GP updates
@@ -99,16 +104,17 @@ class Model(kModel):
                              val_ins=validation_data,
                              batch_size=batch_size,
                              gp_n_iter=gp_n_iter)
-        callbacks = [update_gp] + callbacks + [Timer()]
+        callbacks = [update_gp] + (callbacks or []) + [Timer()]
 
-        return super(Model, self).fit(X, Y,
-                                      batch_size=batch_size,
-                                      nb_epoch=nb_epoch,
-                                      verbose=verbose,
-                                      callbacks=callbacks,
-                                      shuffle=shuffle,
-                                      class_weight=class_weight,
-                                      sample_weight=sample_weight)
+        return super(Model, self).fit(
+            X, Y,
+            batch_size=batch_size,
+            nb_epoch=nb_epoch,
+            verbose=verbose,
+            callbacks=callbacks,
+            shuffle=shuffle,
+            class_weight=class_weight,
+            sample_weight=sample_weight)
 
     def finetune(self, X, Y, batch_size=128, gp_n_iter=10, verbose=1):
         '''Finetune the output GP layers assuming the network is pre-trained.
@@ -125,9 +131,9 @@ class Model(kModel):
                 Verbosity mode, 0 or 1.
         '''
         # Validate user data
-        X = standardize_input_data(X, self.input_names,
-                                   self.internal_input_shapes,
-                                   check_batch_dim=False)
+        X = standardize_input_data(
+            X, self.input_names, self.internal_input_shapes,
+            check_batch_axis=False)
 
         H = self.transform(X, batch_size=batch_size)
 
@@ -162,9 +168,12 @@ class Model(kModel):
             nlml : float
         '''
         # Validate user data
-        X, Y, _ = self._standardize_user_data(X, Y,
-                                              check_batch_dim=False,
-                                              batch_size=batch_size)
+        X, Y, _ = self._standardize_user_data(
+            X, Y,
+            sample_weight=None,
+            class_weight=None,
+            check_batch_axis=False,
+            batch_size=batch_size)
 
         H = self.transform(X, batch_size=batch_size)
 
@@ -194,9 +203,12 @@ class Model(kModel):
         '''
         # Update GP data if provided (and grid if necessary)
         if X_tr is not None and Y_tr is not None:
-            X_tr, Y_tr, _ = self._standardize_user_data(X_tr, Y_tr,
-                                                        check_batch_dim=False,
-                                                        batch_size=batch_size)
+            X_tr, Y_tr, _ = self._standardize_user_data(
+                X_tr, Y_tr,
+                sample_weight=None,
+                class_weight=None,
+                check_batch_axis=False,
+                batch_size=batch_size)
             H_tr = self.transform(X_tr, batch_size=batch_size)
             for gp, h, y in zip(self.gp_output_layers, H_tr, Y_tr):
                 gp.backend.update_data('tr', h, y)
@@ -204,9 +216,9 @@ class Model(kModel):
                     gp.backend.update_grid('tr')
 
         # Validate user data
-        X = standardize_input_data(X, self.input_names,
-                                   self.internal_input_shapes,
-                                   check_batch_dim=False)
+        X = standardize_input_data(
+            X, self.input_names, self.internal_input_shapes,
+            check_batch_axis=False)
 
         H = self.transform(X, batch_size=batch_size)
 
