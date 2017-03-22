@@ -9,8 +9,8 @@ import numpy as np
 
 from keras import optimizers
 from keras.models import Model as KerasModel
-from keras.engine.topology import to_list
-from keras.engine.training import standardize_input_data
+from keras.engine.topology import _to_list
+from keras.engine.training import _standardize_input_data
 
 from .callbacks import UpdateGP, Timer
 
@@ -78,7 +78,7 @@ class Model(KerasModel):
 
     def transform(self, x, batch_size=32, verbose=0):
         h = super(Model, self).predict(x, batch_size, verbose)
-        return to_list(h)
+        return _to_list(h)
 
     def fit(self, X, Y, batch_size=32, nb_epoch=10, verbose=1, callbacks=None,
             validation_data=None, shuffle=True, gp_n_iter=1,
@@ -131,7 +131,7 @@ class Model(KerasModel):
                 Verbosity mode, 0 or 1.
         '''
         # Validate user data
-        X = standardize_input_data(
+        X = _standardize_input_data(
             X, self.input_names, self.internal_input_shapes,
             check_batch_axis=False)
 
@@ -216,7 +216,7 @@ class Model(KerasModel):
                     gp.backend.update_grid('tr')
 
         # Validate user data
-        X = standardize_input_data(
+        X = _standardize_input_data(
             X, self.input_names, self.internal_input_shapes,
             check_batch_axis=False)
 

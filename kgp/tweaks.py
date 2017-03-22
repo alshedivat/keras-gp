@@ -7,11 +7,15 @@ from __future__ import absolute_import
 import numpy as np
 
 import keras.callbacks as cbks
-from keras.engine.training import (make_batches, batch_shuffle, slice_X)
+from keras.engine.training import _batch_shuffle
+from keras.engine.training import _make_batches
+from keras.engine.training import _slice_arrays
+
 from .models import Model
 
+
 def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
-              nb_epoch=100, verbose=1, callbacks=None,
+              epochs=100, verbose=1, callbacks=None,
               val_f=None, val_ins=None, shuffle=True,
               callback_metrics=None, initial_epoch=0):
     """Abstract fit function for f(ins).
@@ -23,7 +27,7 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
         out_labels: list of strings, display names of
             the outputs of `f`
         batch_size: integer batch size
-        nb_epoch: number of times to iterate over the data
+        epochs: number of times to iterate over the data
         verbose: verbosity mode, 0, 1 or 2
         callbacks: list of callbacks to be called during training
         val_f: Keras function to call for validation
@@ -48,8 +52,16 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
             print('Train on %d samples, validate on %d samples' %
                   (ins[0].shape[0], val_ins[0].shape[0]))
 
-    nb_train_sample = ins[0].shape[0]
-    index_array = np.arange(nb_train_sample)
+    if ins and hasattr(ins[0], 'shape'):
+        num_train_samples = ins[0].shape[0]
+    else:
+        # May happen if we are running `fit` without Numpy input data,
+        # i.e. if all inputs to the models are data tensors
+        # instead of placeholders.
+        # In that case we will run `fit` over a single batch.
+        num_train_samples = batch_size
+        verbose = 2
+    index_array = np.arange(num_train_samples)
 
     self.history = cbks.History()
     callbacks = [cbks.BaseLogger()] + (callbacks or []) + [self.history]
@@ -68,33 +80,34 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
     callbacks.set_model(callback_model)
     callbacks.set_params({
         'batch_size': batch_size,
-        'nb_epoch': nb_epoch,
-        'nb_sample': nb_train_sample,
+        'epochs': epochs,
+        'samples': num_train_samples,
         'verbose': verbose,
         'do_validation': do_validation,
         'metrics': callback_metrics or [],
     })
     callbacks.on_train_begin()
     callback_model.stop_training = False
-    self.validation_data = val_ins
+    for cbk in callbacks:
+        cbk.validation_data = val_ins
 
-    for epoch in range(initial_epoch, nb_epoch):
+    for epoch in range(initial_epoch, epochs):
         callbacks.on_epoch_begin(epoch)
         if shuffle == 'batch':
-            index_array = batch_shuffle(index_array, batch_size)
+            index_array = _batch_shuffle(index_array, batch_size)
         elif shuffle:
             np.random.shuffle(index_array)
 
-        batches = make_batches(nb_train_sample, batch_size)
+        batches = _make_batches(num_train_samples, batch_size)
         epoch_logs = {}
         for batch_index, (batch_start, batch_end) in enumerate(batches):
             batch_ids = index_array[batch_start:batch_end]
             try:
                 if isinstance(ins[-1], float):
                     # do not slice the training phase flag
-                    ins_batch = slice_X(ins[:-1], batch_ids) + [ins[-1]]
+                    ins_batch = _slice_arrays(ins[:-1], batch_ids) + [ins[-1]]
                 else:
-                    ins_batch = slice_X(ins, batch_ids)
+                    ins_batch = _slice_arrays(ins, batch_ids)
             except TypeError:
                 raise TypeError('TypeError while preparing batch. '
                                 'If using HDF5 input data, '
@@ -134,7 +147,8 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
 Model._fit_loop = _fit_loop
 
 
-def on_batch_end(self, batch, logs={}):
+def _on_batch_end(self, batch, logs=None):
+    logs = logs or {}
     batch_size = logs.get('size', 0)
     self.seen += batch_size
 
@@ -146,4 +160,4 @@ def on_batch_end(self, batch, logs={}):
             self.totals[k] = v * batch_size
 
 # Monkey-patch keras.callbacks.BaseLogger
-cbks.BaseLogger.on_batch_end = on_batch_end
+cbks.BaseLogger.on_batch_end = _on_batch_end
