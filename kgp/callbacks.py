@@ -30,7 +30,9 @@ class UpdateGP(Callback):
         if self.validation_data is not None:
             self.params['metrics'] += ['val_' + m for m in params['metrics']]
 
-    def on_epoch_begin(self, epoch, logs={}):
+    def on_epoch_begin(self, epoch, logs=None):
+        logs = logs if logs is not None else {}
+
         X, Y = self.training_data
 
         # Do forward pass
@@ -56,7 +58,8 @@ class UpdateGP(Callback):
         logs['gp_update_elapsed'] = np.mean(gp_update_elapsed)
 
     def on_batch_begin(self, batch, logs=None):
-        logs = logs or {}
+        logs = logs if logs is not None else {}
+
         # Update the batch ids for the current batch
         for gp in self.model.output_gp_layers:
             gp.batch_sz = int(logs['size'])
@@ -64,7 +67,7 @@ class UpdateGP(Callback):
             gp.batch_ids = np.pad(logs['ids'], (0, pad_size), 'constant')
 
     def on_epoch_end(self, epoch, logs=None):
-        logs = logs or {}
+        logs = logs if logs is not None else {}
 
         # Do validation (if necessary)
         if self.validation_data is not None:
@@ -90,6 +93,6 @@ class Timer(Callback):
         self._batch_elapsed.append(batch_elapsed)
 
     def on_epoch_end(self, epoch, logs=None):
-        logs = logs or {}
+        logs = logs if logs is not None else {}
         logs['epoch_elapsed'] = default_timer() - self._epoch_start
         logs['batch_elapsed_avg'] = np.mean(self._batch_elapsed)

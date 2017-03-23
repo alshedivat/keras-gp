@@ -40,7 +40,7 @@ def build_model(nb_outputs=2):
     outputs = [GP(**gp_test_config)(dense) for _ in xrange(nb_outputs)]
 
     # Build the model
-    model = Model(input=inputs, output=outputs)
+    model = Model(inputs=inputs, outputs=outputs)
 
     return model
 
@@ -49,13 +49,13 @@ def test_compile():
     model = build_model()
 
     # Generate losses for GP outputs
-    loss = [gen_gp_loss(gp) for gp in model.gp_output_layers]
+    loss = [gen_gp_loss(gp) for gp in model.output_gp_layers]
 
     # Compile the model
     model.compile(optimizer=optimizer, loss=loss)
 
 
-def test_fit(nb_epoch=10, seed=42):
+def test_fit(epochs=10, seed=42):
     rng = np.random.RandomState(seed)
 
     for nb_outputs in [1, 2]:
@@ -65,12 +65,12 @@ def test_fit(nb_epoch=10, seed=42):
 
         # Build & compile the model
         model = build_model(nb_outputs)
-        loss = [gen_gp_loss(gp) for gp in model.gp_output_layers]
+        loss = [gen_gp_loss(gp) for gp in model.output_gp_layers]
         model.compile(optimizer=optimizer, loss=loss)
 
         # Train the model
         model.fit(X_tr, Y_tr,
-                  nb_epoch=nb_epoch,
+                  epochs=epochs,
                   batch_size=batch_size,
                   verbose=2)
 
@@ -85,7 +85,7 @@ def test_finetune(gp_n_iter=10, seed=42):
 
         # Build & compile the model
         model = build_model(nb_outputs)
-        loss = [gen_gp_loss(gp) for gp in model.gp_output_layers]
+        loss = [gen_gp_loss(gp) for gp in model.output_gp_layers]
         model.compile(optimizer=optimizer, loss=loss)
 
         # Finetune the model
@@ -105,7 +105,7 @@ def test_evaluate(seed=42):
 
         # Build & compile the model
         model = build_model(nb_outputs)
-        loss = [gen_gp_loss(gp) for gp in model.gp_output_layers]
+        loss = [gen_gp_loss(gp) for gp in model.output_gp_layers]
         model.compile(optimizer=optimizer, loss=loss)
 
         # Evaluate the model
@@ -124,7 +124,7 @@ def test_predict(seed=42):
 
         # Build & compile the model
         model = build_model(nb_outputs)
-        loss = [gen_gp_loss(gp) for gp in model.gp_output_layers]
+        loss = [gen_gp_loss(gp) for gp in model.output_gp_layers]
         model.compile(optimizer=optimizer, loss=loss)
 
         # Predict

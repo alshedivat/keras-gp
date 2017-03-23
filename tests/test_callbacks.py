@@ -41,7 +41,7 @@ def build_model(nb_outputs=2):
     outputs = [GP(**gp_test_config)(dense) for _ in xrange(nb_outputs)]
 
     # Build the model
-    model = Model(input=inputs, output=outputs)
+    model = Model(inputs=inputs, outputs=outputs)
 
     return model
 
@@ -58,7 +58,7 @@ def test_update_gp(seed=42):
 
         # Build & compile the model
         model = build_model(nb_outputs)
-        loss = [gen_gp_loss(gp) for gp in model.gp_output_layers]
+        loss = [gen_gp_loss(gp) for gp in model.output_gp_layers]
         model.compile(optimizer=optimizer, loss=loss)
 
         # Setup the callback
@@ -85,9 +85,10 @@ def test_timer():
     timer_callback = Timer()
 
     # Test the callback
-    epoch_logs, batch_logs = {}, {}
+    epoch_logs= {}
     timer_callback.on_epoch_begin(1, epoch_logs)
-    timer_callback.on_batch_begin(1, batch_logs)
+    timer_callback.on_batch_begin(1)
+    timer_callback.on_batch_end(1)
     timer_callback.on_epoch_end(1, epoch_logs)
 
     assert 'epoch_elapsed' in epoch_logs

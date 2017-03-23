@@ -148,7 +148,7 @@ Model._fit_loop = _fit_loop
 
 
 def _on_batch_end(self, batch, logs=None):
-    logs = logs or {}
+    logs = logs if logs is not None else {}
     batch_size = logs.get('size', 0)
     self.seen += batch_size
 
