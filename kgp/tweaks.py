@@ -88,8 +88,8 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
     })
     callbacks.on_train_begin()
     callback_model.stop_training = False
-    for cbk in callbacks:
-        cbk.validation_data = val_ins
+    # for cbk in callbacks:
+    #     cbk.validation_data = val_ins
 
     for epoch in range(initial_epoch, epochs):
         callbacks.on_epoch_begin(epoch)
@@ -120,7 +120,7 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
             outs = f(ins_batch)
             if not isinstance(outs, list):
                 outs = [outs]
-            for l, o in zip(out_labels, outs):
+            for l, o in zip(out_labels, outs[1:]):
                 batch_logs[l] = o
 
             callbacks.on_batch_end(batch_index, batch_logs)
@@ -135,7 +135,7 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
                     if not isinstance(val_outs, list):
                         val_outs = [val_outs]
                     # same labels assumed
-                    for l, o in zip(out_labels, val_outs):
+                    for l, o in zip(out_labels, val_outs[1:]):
                         epoch_logs['val_' + l] = o
         callbacks.on_epoch_end(epoch, epoch_logs)
         if callback_model.stop_training:

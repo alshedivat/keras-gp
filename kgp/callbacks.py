@@ -1,7 +1,8 @@
 """
 Gaussian Process callbacks for Keras.
 """
-from __future__ import absolute_import, division
+from __future__ import absolute_import
+from __future__ import division
 
 import warnings
 
@@ -16,8 +17,8 @@ from .utils.execute import elapsed_timer
 
 
 class UpdateGP(Callback):
-    '''Performs GP updates at the beginning of each epoch during training.
-    '''
+    """Performs GP updates at the beginning of each epoch during training.
+    """
     def __init__(self, ins, val_ins=None, batch_size=128, gp_n_iter=1):
         self.training_data = ins
         self.validation_data = val_ins
@@ -37,7 +38,7 @@ class UpdateGP(Callback):
 
         # Update GPs
         gp_update_elapsed = []
-        for gp, h, y in zip(self.model.gp_output_layers, H, Y):
+        for gp, h, y in zip(self.model.output_gp_layers, H, Y):
             # Update GP data (and grid if necessary)
             gp.backend.update_data('tr', h, y)
             if gp.update_grid and (epoch % gp.update_grid == 0):
@@ -54,37 +55,41 @@ class UpdateGP(Callback):
             gp.nlml = gp.backend.evaluate('tr')
         logs['gp_update_elapsed'] = np.mean(gp_update_elapsed)
 
-    def on_batch_begin(self, batch, logs={}):
+    def on_batch_begin(self, batch, logs=None):
+        logs = logs or {}
         # Update the batch ids for the current batch
-        for gp in self.model.gp_output_layers:
+        for gp in self.model.output_gp_layers:
             gp.batch_sz = int(logs['size'])
             pad_size = self.batch_size - logs['size']
             gp.batch_ids = np.pad(logs['ids'], (0, pad_size), 'constant')
 
-    def on_epoch_end(self, epoch, logs={}):
-        # Do validation if necessary
+    def on_epoch_end(self, epoch, logs=None):
+        logs = logs or {}
+
+        # Do validation (if necessary)
         if self.validation_data is not None:
             X_val, Y_val = self.validation_data
             H_val = self.model.transform(X_val, self.batch_size)
-            for gp, h, y in zip(self.model.gp_output_layers, H_val, Y_val):
+            for gp, h, y in zip(self.model.output_gp_layers, H_val, Y_val):
                 logs['val_nlml'] = gp.backend.evaluate('val', h, y)
                 logs['val_mse'] = MSE(y, gp.backend.predict(h))
 
 
 class Timer(Callback):
-    '''Simply records time for each batch and epoch.
-    '''
-    def on_epoch_begin(self, epoch, logs={}):
+    """Simply records time for each batch and epoch.
+    """
+    def on_epoch_begin(self, epoch, logs=None):
         self._epoch_start = default_timer()
 
-    def on_batch_begin(self, batch, logs={}):
+    def on_batch_begin(self, batch, logs=None):
         self._batch_start = default_timer()
         self._batch_elapsed = []
 
-    def on_batch_end(self, batch, logs={}):
+    def on_batch_end(self, batch, logs=None):
         batch_elapsed = default_timer() - self._batch_start
         self._batch_elapsed.append(batch_elapsed)
 
-    def on_epoch_end(self, epoch, logs={}):
+    def on_epoch_end(self, epoch, logs=None):
+        logs = logs or {}
         logs['epoch_elapsed'] = default_timer() - self._epoch_start
         logs['batch_elapsed_avg'] = np.mean(self._batch_elapsed)

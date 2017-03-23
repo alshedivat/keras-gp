@@ -25,9 +25,9 @@ def elapsed_timer():
 
 
 def train(model, data,
-          nb_epoch=100,
+          epochs=100,
           batch_size=128,
-          callbacks=[],
+          callbacks=None,
           checkpoint=None,
           checkpoint_monitor='val_loss',
           verbose=1,
@@ -39,9 +39,9 @@ def train(model, data,
         model : Model
             Assumes the model has been already compiled.
         data : dict
-        nb_epoch : uint (default: 100)
+        epochs : uint (default: 100)
         batch_size : uint (default: 128)
-        callbacks : list (default: [])
+        callbacks : list (default: None)
         checkpoint : str (default: None)
         verbose : uint (default: 1)
 
@@ -52,6 +52,7 @@ def train(model, data,
     X_train, y_train = data['train']
     X_test, y_test = data['test']
     validation_data = data['valid'] if 'valid' in data else None
+    callbacks = callbacks or []
 
     # Make sure the checkpoints directory exists
     if checkpoint is not None:
@@ -71,7 +72,7 @@ def train(model, data,
         sys.stdout.flush()
 
     history = model.fit(X_train, y_train, validation_data=validation_data,
-                        batch_size=batch_size, nb_epoch=nb_epoch,
+                        batch_size=batch_size, epochs=epochs,
                         callbacks=callbacks, verbose=verbose,
                         **fit_kwargs)
 

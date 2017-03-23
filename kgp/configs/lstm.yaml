@@ -10,8 +10,8 @@
       activation: {H_activation!r}
       return_sequences: False
       output_dim: {H_dim:d}
-      dropout_W: {dropout_W:f}
-      dropout_U: {dropout_U:f}
+      dropout: {dropout_W:f}
+      recurrent_dropout: {dropout_U:f}
     dropout: {dropout:f}
     batch_norm: {batch_norm!s}
 
@@ -25,8 +25,8 @@
       activation: {H_activation!r}
       return_sequences: True
       output_dim: {H_dim:d}
-      dropout_W: {dropout_W:f}
-      dropout_U: {dropout_U:f}
+      dropout: {dropout_W:f}
+      recurrent_dropout: {dropout_U:f}
     dropout: {dropout:f}
     batch_norm: {batch_norm!s}
   - name: LSTM
@@ -35,7 +35,7 @@
       activation: {H_activation!r}
       return_sequences: False
       output_dim: {H_dim:d}
-      dropout_W: {dropout_W:f}
-      dropout_U: {dropout_U:f}
+      dropout: {dropout_W:f}
+      recurrent_dropout: {dropout_U:f}
     dropout: {dropout:f}
     batch_norm: {batch_norm!s}

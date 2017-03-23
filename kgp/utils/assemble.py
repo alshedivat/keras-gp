@@ -129,24 +129,24 @@ def assemble_narx(params, final_reshape=True):
     if final_reshape:
         outputs = layers.Reshape(output_shape)(outputs)
 
-    return KerasModel(input=inputs, output=outputs)
+    return KerasModel(inputs=inputs, outputs=outputs)
 
 
 def assemble_gpnarx(nn_params, gp_params):
     """Construct an GP-NARX model of the form: X-[H1-H2-...-HN]-GP-Y.
     """
-    # Input layer
-    input_shape = nn_params['input_shape']
-    inputs = layers.Input(shape=input_shape)
+    # Assemble NARX
+    NARX = assemble_narx(nn_params, final_reshape=False)
 
-    # NARX transformation
-    narx = assemble_narx(nn_params, final_reshape=False)(inputs)
+    # Inputs and NARX layer
+    inputs = NARX.inputs
+    narx = NARX(inputs)
 
-    # Output layer
+    # Output GP layers
     outputs = [GP(**gp_params['config'])(narx)
                for _ in xrange(gp_params['nb_outputs'])]
 
-    return Model(input=inputs, output=outputs)
+    return Model(inputs=inputs, outputs=outputs)
 
 
 def assemble_rnn(params, final_reshape=True):
@@ -179,21 +179,21 @@ def assemble_rnn(params, final_reshape=True):
     if final_reshape:
         outputs = layers.Reshape(output_shape)(outputs)
 
-    return KerasModel(input=inputs, output=outputs)
+    return KerasModel(inputs=inputs, outputs=outputs)
 
 
 def assemble_gprnn(nn_params, gp_params):
     """Construct an GP-RNN/LSTM/GRU model of the form: X-[H1-H2-...-HN]-GP-Y
     """
-    # Input layer
-    input_shape = nn_params['input_shape']
-    inputs = layers.Input(shape=input_shape)
+    # Assemble RNN
+    RNN = assemble_rnn(nn_params, final_reshape=False)
 
-    # NARX transformation
-    rnn = assemble_rnn(nn_params, final_reshape=False)(inputs)
+    # Inputs and RNN layer
+    inputs = RNN.inputs
+    rnn = RNN(inputs)
 
-    # Output layer
+    # Output GP layers
     outputs = [GP(**gp_params['config'])(rnn)
                for _ in xrange(gp_params['nb_outputs'])]
 
-    return Model(input=inputs, output=outputs)
+    return Model(inputs=inputs, outputs=outputs)
