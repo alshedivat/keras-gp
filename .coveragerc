@@ -1,7 +1,4 @@
 [run]
 omit =
     # omit dataset loaders
-    datasets/*
-include =
-    # include data utils
-    datasets/data_utils.py
+    kgp/datasets/*
