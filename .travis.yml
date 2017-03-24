@@ -1,0 +1,20 @@
+sudo: required
+dist: trusty
+language: python
+python:
+  - 2.7
+  - 3.5
+git:
+  submodules: true
+branches:
+  only:
+  - keras-2.0
+before_install:
+  - sudo add-apt-repository ppa:octave/stable
+  - sudo apt-get update
+  - sudo apt-get install octave
+install:
+  - pip install -r requirements.txt
+  - pip install -e .
+script:
+  - py.test tests
