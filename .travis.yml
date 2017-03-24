@@ -10,9 +10,11 @@ branches:
   only:
   - keras-2.0
 before_install:
-  - sudo add-apt-repository ppa:octave/stable
+  - sudo add-apt-repository -y ppa:octave/stable
   - sudo apt-get update
-  - sudo apt-get install octave
+  - sudo apt-get -y install curl octave liboctave-dev
+  - octave --eval "pkg install -forge -verbose io"
+  - octave --eval "pkg install -forge -verbose statistics"
 install:
   - pip install -r requirements.txt
   - pip install -e .

@@ -14,8 +14,9 @@ setup(
     author_email='maruan@alshedivat.com',
     url='https://github.com/alshedivat/kgp',
     license='MIT',
-    dependency_links=['git+http://github.com/Theano/Theano.git#egg=Theano'],
-    install_requires=['numpy>=1.5', 'keras>=2.0', 'theano', 'pyyaml', 'six'],
+    install_requires=[
+        'numpy>=1.9', 'keras>=2.0', 'tensorflow', 'pyyaml', 'six',
+    ],
     extras_require = {
         'matlab_engine':  ['matlab'],
         'octave_engine':  ['oct2py==3.9.0'],
