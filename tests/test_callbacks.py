@@ -7,7 +7,7 @@ from keras.layers import Input, Dense, LSTM
 from kgp.models import Model
 from kgp.layers import GP
 from kgp.callbacks import *
-from kgp.objectives import gen_gp_loss
+from kgp.losses import gen_gp_loss
 
 N = 256
 batch_size = 64
