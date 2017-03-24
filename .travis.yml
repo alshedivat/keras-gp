@@ -16,7 +16,10 @@ before_install:
   - octave --eval "pkg install -forge -verbose io"
   - octave --eval "pkg install -forge -verbose statistics"
 install:
+  - pip install pytest-cov coveralls
   - pip install -r requirements.txt
   - pip install -e .
 script:
-  - py.test tests
+  - py.test --cov-report term-missing --cov=kgp tests/
+after_success:
+  - coveralls
