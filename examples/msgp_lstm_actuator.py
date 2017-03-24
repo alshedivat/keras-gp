@@ -18,8 +18,8 @@ from kgp.datasets.data_utils import preprocess_data
 from kgp.utils.assemble import load_NN_configs, load_GP_configs, assemble
 from kgp.utils.execute import train
 
-# Metrics & objectives
-from kgp.objectives import gen_gp_loss
+# Metrics & losses
+from kgp.losses import gen_gp_loss
 from kgp.metrics import root_mean_squared_error as RMSE
 
 
@@ -48,23 +48,32 @@ def main():
     nb_outputs = len(data['train'][1])
     gp_input_shape = (1,)
     batch_size = 128
-    nb_epoch = 5
+    epochs = 5
+
+    nn_params = {
+        'H_dim': 16,
+        'H_activation': 'tanh',
+        'dropout': 0.1,
+    }
+    gp_params = {
+        'cov': 'SEiso',
+        'hyp_lik': -2.0,
+        'hyp_cov': [[-0.7], [0.0]],
+        'opt': {'cg_maxit': 500, 'cg_tol': 1e-4},
+        'grid_kwargs': {'eq': 1, 'k': 1e2},
+        'update_grid': True,
+    }
 
     # Retrieve model config
     nn_configs = load_NN_configs(filename='lstm.yaml',
                                  input_shape=input_shape,
                                  output_shape=gp_input_shape,
-                                 H_dim=16, H_activation='tanh',
-                                 dropout=0.1)
+                                 params=nn_params)
     gp_configs = load_GP_configs(filename='gp.yaml',
                                  nb_outputs=nb_outputs,
                                  batch_size=batch_size,
                                  nb_train_samples=nb_train_samples,
-                                 opt={'cg_maxit': 500, 'cg_tol': 1e-4},
-                                 grid_kwargs={'eq': 1, 'k': 1e2},
-                                 cov='SEiso',
-                                 hyp_lik=-2.0,
-                                 hyp_cov=[[-0.7], [0.0]])
+                                 params=gp_params)
 
     # Construct & compile the model
     model = assemble('GP-LSTM', [nn_configs['1H'], gp_configs['MSGP']])
@@ -77,7 +86,7 @@ def main():
     # Train the model
     history = train(model, data, callbacks=callbacks, gp_n_iter=5,
                     checkpoint='lstm', checkpoint_monitor='val_mse',
-                    nb_epoch=nb_epoch, batch_size=batch_size, verbose=2)
+                    epochs=epochs, batch_size=batch_size, verbose=2)
 
     # Finetune the model
     model.finetune(*data['train'],

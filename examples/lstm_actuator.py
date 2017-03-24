@@ -45,14 +45,19 @@ def main():
     input_shape = data['train'][0].shape[1:]
     output_shape = data['train'][1].shape[1:]
     batch_size = 16
-    nb_epoch = 3
+    epochs = 3
+
+    nn_params = {
+        'H_dim': 128,
+        'H_activation': 'tanh',
+        'dropout': 0.1,
+    }
 
     # Retrieve model config
     configs = load_NN_configs(filename='lstm.yaml',
                               input_shape=input_shape,
                               output_shape=output_shape,
-                              H_dim=128, H_activation='tanh',
-                              dropout=0.1)
+                              params=nn_params)
 
     # Construct & compile the model
     model = assemble('LSTM', configs['1H'])
@@ -64,7 +69,7 @@ def main():
     # Train the model
     history = train(model, data, callbacks=callbacks,
                     checkpoint='lstm', checkpoint_monitor='val_loss',
-                    nb_epoch=nb_epoch, batch_size=batch_size, verbose=2)
+                    epochs=epochs, batch_size=batch_size, verbose=2)
 
     # Test the model
     X_test, y_test = data['test']

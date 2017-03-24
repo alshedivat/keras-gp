@@ -29,7 +29,7 @@ from keras.optimizers import Adam
 
 from kgp.layers import GP
 from kgp.models import Model
-from kgp.objectives import gen_gp_loss
+from kgp.losses import gen_gp_loss
 
 input_shape = (10, 2)  # 10 time steps, 2 dimensions
 batch_size = 32
@@ -43,7 +43,7 @@ gp = GP(gp_hypers,
         batch_size=batch_size,
         nb_train_samples=nb_train_samples)
 outputs = [gp(rnn)]
-model = Model(input=inputs, output=outputs)
+model = Model(inputs=inputs, outputs=outputs)
 
 # Compile the model
 loss = [gen_gp_loss(gp) for gp in model.output_layers]

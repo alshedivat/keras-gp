@@ -2,10 +2,12 @@
 Gaussian Process layers for Keras.
 """
 from __future__ import absolute_import
+from __future__ import print_function
 
 import numpy as np
 
-from keras.engine import InputSpec, Layer
+from keras.engine import InputSpec
+from keras.engine import Layer
 
 # Backend for neural networks
 from keras import backend as K
@@ -15,7 +17,7 @@ from .backend import GP_BACKEND
 
 
 class GP(Layer):
-    '''Gaussian Process layer.
+    """Gaussian Process layer.
 
     Encapsulates GP backend functionality and provides a Keras-like interface
     for working with Gaussian processes.
@@ -46,19 +48,19 @@ class GP(Layer):
         gpml_path : str or None (default: None)
             Path to GPML. If None, the backend will attempt to use `GPML_PATH`
             environment variable and raises ValueError if couldn't find.
-    '''
-    def __init__(self, hyp, batch_size, nb_train_samples, opt={},
+    """
+    def __init__(self, hyp, batch_size, nb_train_samples, opt=None,
                  inf='infExact', lik='likGauss', dlik='dlikExact',
                  mean='meanZero', cov='covSEiso',
                  grid_kwargs=None, update_grid=0,
-                 engine=None, engine_kwargs={},
+                 engine=None, engine_kwargs=None,
                  gpml_path=None, verbose=1):
         self.hyp = hyp
         self.batch_size = batch_size
         self.nb_train_samples = nb_train_samples
         self.backend = GP_BACKEND(engine, engine_kwargs, gpml_path)
         self.backend_config = {
-            'opt': opt,
+            'opt': opt or {},
             'inf': inf,
             'lik': lik,
             'dlik': dlik,
@@ -119,18 +121,17 @@ class GP(Layer):
         K.set_value(self._mse, value)
 
     def build(self, input_shape):
-        '''Create the internal variables for communication with GP backend.
+        """Create the internal variables for communication with GP backend.
 
         Arguments:
         ----------
             input_shape: Keras tensor (future input to layer)
                 or list/tuple of Keras tensors to reference
                 for weight shape computations.
-        '''
+        """
         assert len(input_shape) == 2
-        input_dim = input_shape[1]
-        self.input_spec = [InputSpec(dtype=K.floatx(),
-                                     shape=(None, input_dim))]
+        input_dim = input_shape[-1]
+        self.input_spec = InputSpec(dtype=K.floatx(), shape=(None, input_dim))
 
         # Configure GP backend
         self.backend.configure(input_dim, self.hyp, **self.backend_config)
@@ -145,9 +146,3 @@ class GP(Layer):
         self._mse = K.variable(0.)
 
         self.built = True
-
-    def call(self, x, mask=None):
-        '''GP performs identity transformation.
-        '''
-        # return x.copy()
-        return x

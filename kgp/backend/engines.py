@@ -3,6 +3,7 @@ Computational engines used by GP backends.
 """
 import numpy as np
 
+
 class Engine(object):
     """The base class for computational engines.
     """
@@ -80,6 +81,11 @@ class OctaveEngine(Engine):
         self._eng.eval('pkg load statistics', verbose=0)
 
     def push(self, name, var):
+        if type(var) is np.ndarray and var.dtype == 'float32':
+            # Octave does not support `sparse matrix * dense matrix` operations
+            # for float32 type, hence we cast `var` to float64 before pushing
+            # into the Octave session
+            var = var.astype('float64')
         self._eng.push(name, var)
 
     def pull(self, name):

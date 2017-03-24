@@ -33,7 +33,7 @@ class GPML(object):
         engine : str (either 'matlab' or 'octave')
         gpml_path : str or None
     """
-    def __init__(self, engine=None, engine_kwargs={}, gpml_path=None):
+    def __init__(self, engine=None, engine_kwargs=None, gpml_path=None):
         if engine is None:
             if 'GP_ENGINE' in os.environ:
                 engine = os.environ['GP_ENGINE']
@@ -59,6 +59,7 @@ class GPML(object):
                         "available directly from KGP. "
                         "Please make sure you cloned KGP *recursively*.")
 
+        engine_kwargs = engine_kwargs or {}
         self.eng = Engine(**engine_kwargs)
         self.eng.addpath(gpml_path)
         self.eng.eval('startup', verbose=0)

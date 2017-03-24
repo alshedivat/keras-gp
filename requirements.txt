@@ -1,6 +1,6 @@
 six
 h5py
-keras==1.2.2
+keras>=2.0
 numpy>=1.5
 oct2py==3.9.0
-theano>=0.8.2
+tensorflow>=1.0

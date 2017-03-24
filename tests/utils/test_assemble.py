@@ -3,7 +3,7 @@ from six.moves import xrange
 import numpy as np
 
 import kgp
-from kgp.objectives import gen_gp_loss
+from kgp.losses import gen_gp_loss
 from kgp.utils.assemble import *
 
 # Test parameters

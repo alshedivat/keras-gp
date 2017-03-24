@@ -10,11 +10,8 @@ import numpy as np
 from six.moves import xrange
 
 import keras
-from keras.layers import *
-from keras.regularizers import *
-from keras.layers.normalization import *
+from keras import layers, regularizers
 from keras.models import Model as KerasModel
-from keras.utils.generic_utils import get_from_module
 
 import kgp
 from kgp.models import Model
@@ -108,47 +105,48 @@ def assemble_narx(params, final_reshape=True):
     """
     # Input layer
     input_shape = params['input_shape']
-    inputs = Input(shape=input_shape)
+    inputs = layers.Input(shape=input_shape)
 
     # Flatten the time dimension
     target_shape = (np.prod(input_shape), )
-    previous = Reshape(target_shape)(inputs)
+    previous = layers.Reshape(target_shape)(inputs)
 
     # Hidden layers
     for layer in params['hidden_layers']:
-        Layer = get_from_module(layer['name'], globals(), 'assemble')
-        previous = Layer(**layer['config'])(previous)
+        Layer = layers.deserialize(
+            {'class_name': layer['name'], 'config': layer['config']})
+        previous = Layer(previous)
         if 'dropout' in layer and layer['dropout'] is not None:
-            previous = Dropout(layer['dropout'])(previous)
+            previous = layers.Dropout(layer['dropout'])(previous)
         if 'batch_norm' in layer and layer['batch_norm'] is not None:
-            previous = BatchNormalization(**layer['batch_norm'])(previous)
+            previous = layers.BatchNormalization(**layer['batch_norm'])(previous)
 
     # Output layer
     output_shape = params['output_shape']
     output_dim = np.prod(output_shape)
-    outputs = Dense(output_dim)(previous)
+    outputs = layers.Dense(output_dim)(previous)
 
     if final_reshape:
-        outputs = Reshape(output_shape)(outputs)
+        outputs = layers.Reshape(output_shape)(outputs)
 
-    return KerasModel(input=inputs, output=outputs)
+    return KerasModel(inputs=inputs, outputs=outputs)
 
 
 def assemble_gpnarx(nn_params, gp_params):
     """Construct an GP-NARX model of the form: X-[H1-H2-...-HN]-GP-Y.
     """
-    # Input layer
-    input_shape = nn_params['input_shape']
-    inputs = Input(shape=input_shape)
+    # Assemble NARX
+    NARX = assemble_narx(nn_params, final_reshape=False)
 
-    # NARX transformation
-    narx = assemble_narx(nn_params, final_reshape=False)(inputs)
+    # Inputs and NARX layer
+    inputs = NARX.inputs
+    narx = NARX(inputs)
 
-    # Output layer
+    # Output GP layers
     outputs = [GP(**gp_params['config'])(narx)
                for _ in xrange(gp_params['nb_outputs'])]
 
-    return Model(input=inputs, output=outputs)
+    return Model(inputs=inputs, outputs=outputs)
 
 
 def assemble_rnn(params, final_reshape=True):
@@ -158,43 +156,44 @@ def assemble_rnn(params, final_reshape=True):
     """
     # Input layer
     input_shape = params['input_shape']
-    inputs = Input(shape=input_shape)
+    inputs = layers.Input(shape=input_shape)
 
     # Masking layer
-    previous = Masking(mask_value=0.0)(inputs)
+    previous = layers.Masking(mask_value=0.0)(inputs)
 
     # Hidden layers
     for layer in params['hidden_layers']:
-        Layer = get_from_module(layer['name'], globals(), 'assemble')
-        previous = Layer(**layer['config'])(previous)
+        Layer = layers.deserialize(
+            {'class_name': layer['name'], 'config': layer['config']})
+        previous = Layer(previous)
         if 'dropout' in layer and layer['dropout'] is not None:
-            previous = Dropout(layer['dropout'])(previous)
+            previous = layers.Dropout(layer['dropout'])(previous)
         if 'batch_norm' in layer and layer['batch_norm'] is not None:
-            previous = BatchNormalization(**layer['batch_norm'])(previous)
+            previous = layers.BatchNormalization(**layer['batch_norm'])(previous)
 
     # Output layer
     output_shape = params['output_shape']
     output_dim = np.prod(output_shape)
-    outputs = Dense(output_dim)(previous)
+    outputs = layers.Dense(output_dim)(previous)
 
     if final_reshape:
-        outputs = Reshape(output_shape)(outputs)
+        outputs = layers.Reshape(output_shape)(outputs)
 
-    return KerasModel(input=inputs, output=outputs)
+    return KerasModel(inputs=inputs, outputs=outputs)
 
 
 def assemble_gprnn(nn_params, gp_params):
     """Construct an GP-RNN/LSTM/GRU model of the form: X-[H1-H2-...-HN]-GP-Y
     """
-    # Input layer
-    input_shape = nn_params['input_shape']
-    inputs = Input(shape=input_shape)
+    # Assemble RNN
+    RNN = assemble_rnn(nn_params, final_reshape=False)
 
-    # NARX transformation
-    rnn = assemble_rnn(nn_params, final_reshape=False)(inputs)
+    # Inputs and RNN layer
+    inputs = RNN.inputs
+    rnn = RNN(inputs)
 
-    # Output layer
+    # Output GP layers
     outputs = [GP(**gp_params['config'])(rnn)
                for _ in xrange(gp_params['nb_outputs'])]
 
-    return Model(input=inputs, output=outputs)
+    return Model(inputs=inputs, outputs=outputs)
