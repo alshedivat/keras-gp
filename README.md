@@ -1,6 +1,9 @@
 Gaussian Processes for Keras
 ----------------------------
 
+[![Build Status](https://travis-ci.org/alshedivat/kgp.svg?branch=master)](https://travis-ci.org/alshedivat/kgp)
+[![Coverage Status](https://coveralls.io/repos/github/alshedivat/kgp/badge.svg?branch=master)](https://coveralls.io/github/alshedivat/kgp?branch=master)
+
 KGP extends [Keras](https://github.com/fchollet/keras/) with Gaussian Process (GP) layers.
 It allows one to build flexible GP models with kernels structured with [deep](http://jmlr.org/proceedings/papers/v51/wilson16.pdf) and [recurrent](https://arxiv.org/abs/1610.08936) networks built with Keras.
 The structured part of the model (the neural net) runs on [Theano](http://deeplearning.net/software/theano/) or [Tensorflow](https://www.tensorflow.org/).
