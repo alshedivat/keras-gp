@@ -17,6 +17,6 @@ install:
   - pip install -r requirements.txt
   - pip install -e .
 script:
-  - py.test --cov-report term-missing --cov=kgp tests/
+  - py.test --cov-config .coveragerc --cov-report term-missing --cov=kgp tests/
 after_success:
   - coveralls
