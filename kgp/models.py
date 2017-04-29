@@ -113,7 +113,8 @@ class Model(KerasModel):
         update_gp = UpdateGP(ins=(X, Y),
                              val_ins=validation_data,
                              batch_size=batch_size,
-                             gp_n_iter=gp_n_iter)
+                             gp_n_iter=gp_n_iter,
+                             verbose=verbose)
         callbacks = [update_gp] + (callbacks or [])
 
         return super(Model, self).fit(

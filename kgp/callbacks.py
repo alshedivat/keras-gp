@@ -64,8 +64,8 @@ class UpdateGP(Callback):
             gp_update_elapsed.append(elapsed())
 
             # Compute MSE and NLML
-            gp.mse = 0.0 #MSE(y, gp.backend.predict(h))
-            gp.nlml = gp.backend.evaluate('tr')
+            nlml, preds = gp.backend.eval_predict(h)
+            gp.nlml, gp.mse = nlml, MSE(y, preds)
         logs['gp_update_elapsed'] = np.mean(gp_update_elapsed)
 
     def on_batch_begin(self, batch, logs=None):
@@ -85,8 +85,7 @@ class UpdateGP(Callback):
             X_val, Y_val = self.validation_data
             H_val = self.model.transform(X_val, self.batch_size)
             for gp, h, y in zip(self.model.output_gp_layers, H_val, Y_val):
-                nlml = gp.backend.evaluate('val', h, y, verbose=self.verbose)
-                preds = gp.backend.predict(h, verbose=self.verbose)
+                nlml, preds = gp.backend.eval_predict(h, verbose=self.verbose)
                 logs['val_nlml'], logs['val_mse'] = nlml, MSE(y, preds)
 
 

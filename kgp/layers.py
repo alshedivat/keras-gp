@@ -120,6 +120,9 @@ class GP(Layer):
     def mse(self, value):
         K.set_value(self._mse, value)
 
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], 1)
+
     def build(self, input_shape):
         """Create the internal variables for communication with GP backend.
 
