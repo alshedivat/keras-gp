@@ -24,7 +24,8 @@ NN_DEFAULT_PARAMS = {
     'dropout': 0.5,
     'dropout_W': 0.0,
     'dropout_U': 0.0,
-    'batch_norm': 'null'
+    'batch_norm': 'null',
+    'stateful': False,
 }
 
 
@@ -157,6 +158,7 @@ def assemble_rnn(params, final_reshape=True):
     # Input layer
     input_shape = params['input_shape']
     inputs = layers.Input(shape=input_shape)
+    # inputs = layers.Input(batch_shape=[20] + list(input_shape))
 
     # Masking layer
     previous = layers.Masking(mask_value=0.0)(inputs)

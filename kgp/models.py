@@ -65,8 +65,8 @@ class Model(KerasModel):
         self.metrics_tensors.extend([self.mse, self.nlml])
         self.metrics_names.extend(['mse', 'nlml'])
 
-    def transform(self, x, batch_size=32, verbose=0):
-        h = super(Model, self).predict(x, batch_size, verbose)
+    def transform(self, x, batch_size=32, learning_phase=0., verbose=0):
+        h = super(Model, self).predict(x, batch_size, learning_phase, verbose)
         return _to_list(h)
 
     def fit(self, X, Y,

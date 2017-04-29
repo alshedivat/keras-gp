@@ -36,7 +36,7 @@ class UpdateGP(Callback):
         X, Y = self.training_data
 
         # Do forward pass
-        H = self.model.transform(X, self.batch_size)
+        H = self.model.transform(X, self.batch_size, learning_phase=1.)
 
         # Update GPs
         gp_update_elapsed = []
