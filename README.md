@@ -68,6 +68,13 @@ The GPML backend requires either MATLAB or Octave and a corresponding Python int
 Generally, MATLAB backend seems to provide faster runtime.
 However, if you compile the latest version of Octave with JIT and OpenBLAS support, the overhead gets reduced to minimum.
 
+If you are using Octave, you will need the `statistics` package.
+You can install the package using Octave-Forge:
+```bash
+$ octave --eval "pkg install -forge -verbose io"
+$ octave --eval "pkg install -forge -verbose statistics"
+```
+
 The requirements can be installed via [pip](https://pypi.python.org/pypi/pip) as follows (use `sudo` if necessary):
 
 ```bash
