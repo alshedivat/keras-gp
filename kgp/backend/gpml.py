@@ -125,7 +125,7 @@ class GPML(object):
             print("GP configuration:")
             pprint(self.config)
 
-    def update_data(self, which_set, X, y=None):
+    def update_data(self, which_set, X, y=None, verbose=0):
         """Update data in GP backend.
         """
         assert which_set in {'tr', 'tst', 'val', 'tmp'}
@@ -133,12 +133,12 @@ class GPML(object):
         if y is not None:
             self.eng.push('y_' + which_set, y)
 
-    def update_grid(self, which_set):
+    def update_grid(self, which_set, verbose=0):
         """Update grid for grid-based GP inference.
         """
         assert which_set in {'tr', 'tst', 'val', 'tmp'}
         self.config.update({'X': 'X_' + which_set, 'y': None})
-        self.eng.eval(_gp_create_grid.format(**self.config), verbose=0)
+        self.eng.eval(_gp_create_grid.format(**self.config), verbose=verbose)
 
     def evaluate(self, which_set, X=None, y=None, verbose=0):
         """Evaluate GP for given X and y.

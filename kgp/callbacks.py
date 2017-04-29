@@ -28,11 +28,13 @@ def elapsed_timer():
 class UpdateGP(Callback):
     """Performs GP updates at the beginning of each epoch during training.
     """
-    def __init__(self, ins, val_ins=None, batch_size=128, gp_n_iter=1):
+    def __init__(self, ins, val_ins=None,
+                 batch_size=128, gp_n_iter=1, verbose=0):
         self.training_data = ins
         self.validation_data = val_ins
         self.batch_size = batch_size
         self.gp_n_iter = gp_n_iter
+        self.verbose = verbose
 
     def set_params(self, params):
         self.params = params
@@ -51,18 +53,18 @@ class UpdateGP(Callback):
         gp_update_elapsed = []
         for gp, h, y in zip(self.model.output_gp_layers, H, Y):
             # Update GP data (and grid if necessary)
-            gp.backend.update_data('tr', h, y)
+            gp.backend.update_data('tr', h, y, verbose=self.verbose)
             if gp.update_grid and (epoch % gp.update_grid == 0):
-                gp.backend.update_grid('tr')
+                gp.backend.update_grid('tr', verbose=self.verbose)
 
             # Train GP & get derivatives
             with elapsed_timer() as elapsed:
-                gp.hyp = gp.backend.train(self.gp_n_iter)
-                gp.dlik_dh = gp.backend.get_dlik_dx('tr')
+                gp.hyp = gp.backend.train(self.gp_n_iter, verbose=self.verbose)
+                gp.dlik_dh = gp.backend.get_dlik_dx('tr', verbose=self.verbose)
             gp_update_elapsed.append(elapsed())
 
             # Compute MSE and NLML
-            gp.mse = MSE(y, gp.backend.predict(h))
+            gp.mse = 0.0 #MSE(y, gp.backend.predict(h))
             gp.nlml = gp.backend.evaluate('tr')
         logs['gp_update_elapsed'] = np.mean(gp_update_elapsed)
 
@@ -83,8 +85,9 @@ class UpdateGP(Callback):
             X_val, Y_val = self.validation_data
             H_val = self.model.transform(X_val, self.batch_size)
             for gp, h, y in zip(self.model.output_gp_layers, H_val, Y_val):
-                logs['val_nlml'] = gp.backend.evaluate('val', h, y)
-                logs['val_mse'] = MSE(y, gp.backend.predict(h))
+                nlml = gp.backend.evaluate('val', h, y, verbose=self.verbose)
+                preds = gp.backend.predict(h, verbose=self.verbose)
+                logs['val_nlml'], logs['val_mse'] = nlml, MSE(y, preds)
 
 
 class Timer(Callback):
