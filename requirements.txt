@@ -1,6 +1,8 @@
 six
 h5py
 keras>=2.0
-numpy>=1.5
-oct2py==3.9.0
+numpy>=1.11
+scipy>=0.18
+octave-kernel>=0.25
+oct2py==3.9.2
 tensorflow>=1.0
