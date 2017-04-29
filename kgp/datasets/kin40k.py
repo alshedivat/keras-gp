@@ -5,15 +5,16 @@ import os
 import sys
 import numpy as np
 
+
 def load_data(start=0., stop=100., verbose=1):
-    '''Load the Kin40k data.
+    """Load the Kin40k data.
 
     Arguments:
     ----------
         start : float in [0., 100.) (default: 0.)
         stop : float in (0., 100.] (default: 100.)
         verbose : uint (default: 1)
-    '''
+    """
     if 'DATA_PATH' not in os.environ:
         raise Exception("Cannot find DATA_PATH variable in the environment. "
                         "DATA_PATH should be the folder that contains "

@@ -47,11 +47,11 @@ class Model(KerasModel):
         # Remove the metrics meaningless for GP output layers
         self.metrics_tensors = [
             mt for mt, mn in zip(self.metrics_tensors, self.metrics_names[1:])
-            if not (mn.startswith('gp') or mn.endswith('loss'))
+            if not (mn.startswith('gp') and mn.endswith('loss'))
         ]
         self.metrics_names = [
             mn for mn in self.metrics_names
-            if not (mn.startswith('gp') or mn.endswith('loss'))
+            if not (mn.startswith('gp') and mn.endswith('loss'))
         ]
 
         # Add MSE and NLML metrics for each output GP
@@ -127,7 +127,7 @@ class Model(KerasModel):
             **kwargs)
 
     def finetune(self, X, Y, batch_size=32, gp_n_iter=1, verbose=1):
-        '''Finetune the output GP layers assuming the network is pre-trained.
+        """Finetune the output GP layers assuming the network is pre-trained.
 
         Arguments:
         ----------
@@ -139,7 +139,7 @@ class Model(KerasModel):
                 Number of iterations for GP training.
             verbose : uint (default: 1)
                 Verbosity mode, 0 or 1.
-        '''
+        """
         # Validate user data
         X = _standardize_input_data(
             X, self.input_names, self.internal_input_shapes,
@@ -163,7 +163,7 @@ class Model(KerasModel):
             print("Done.")
 
     def evaluate(self, X, Y, batch_size=32, verbose=0):
-        '''Compute NLML on the given data.
+        """Compute NLML on the given data.
 
         Arguments:
         ----------
@@ -176,7 +176,7 @@ class Model(KerasModel):
         Returns:
         --------
             nlml : float
-        '''
+        """
         # Validate user data
         X, Y, _ = self._standardize_user_data(
             X, Y,
@@ -195,7 +195,7 @@ class Model(KerasModel):
 
     def predict(self, X, X_tr=None, Y_tr=None,
                 batch_size=32, return_var=False, verbose=0):
-        '''Generate output predictions for the input samples batch by batch.
+        """Generate output predictions for the input samples batch by batch.
 
         Arguments:
         ----------
@@ -210,7 +210,7 @@ class Model(KerasModel):
         --------
             preds : a list or a tuple of lists
                 Lists of output predictions and variance estimates.
-        '''
+        """
         # Update GP data if provided (and grid if necessary)
         if X_tr is not None and Y_tr is not None:
             X_tr, Y_tr, _ = self._standardize_user_data(

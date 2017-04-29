@@ -8,12 +8,21 @@ import warnings
 
 import numpy as np
 
+from contextlib import contextmanager
 from timeit import default_timer
 
 from keras.callbacks import Callback
 
 from .metrics import mean_squared_error as MSE
-from .utils.execute import elapsed_timer
+
+
+@contextmanager
+def elapsed_timer():
+    start = default_timer()
+    elapsed = lambda: default_timer() - start
+    yield lambda: elapsed()
+    end = default_timer()
+    elapsed = lambda: end - start
 
 
 class UpdateGP(Callback):

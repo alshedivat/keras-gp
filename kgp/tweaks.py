@@ -123,7 +123,7 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
             outs = f(ins_batch)
             if not isinstance(outs, list):
                 outs = [outs]
-            for l, o in zip(out_labels, outs[1:]):
+            for l, o in zip(out_labels, outs):
                 batch_logs[l] = o
 
             callbacks.on_batch_end(batch_index, batch_logs)
@@ -138,7 +138,7 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
                     if not isinstance(val_outs, list):
                         val_outs = [val_outs]
                     # same labels assumed
-                    for l, o in zip(out_labels, val_outs[1:]):
+                    for l, o in zip(out_labels, val_outs):
                         epoch_logs['val_' + l] = o
         callbacks.on_epoch_end(epoch, epoch_logs)
         if callback_model.stop_training:
@@ -200,7 +200,8 @@ def _on_batch_end(self, batch, logs=None):
     self.seen += batch_size
 
     for k, v in logs.items():
-        if k == 'ids': continue
+        if k == 'ids':
+            continue
         if k in self.totals:
             self.totals[k] += v * batch_size
         else:
