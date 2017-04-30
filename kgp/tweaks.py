@@ -10,8 +10,11 @@ import keras.callbacks as cbks
 from keras.engine.training import _batch_shuffle
 from keras.engine.training import _make_batches
 from keras.engine.training import _slice_arrays
+from keras.engine.training import _standardize_input_data
 
-from .models import Model
+from keras.models import Model
+
+from keras import backend as K
 
 
 def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
@@ -120,7 +123,7 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
             outs = f(ins_batch)
             if not isinstance(outs, list):
                 outs = [outs]
-            for l, o in zip(out_labels, outs[1:]):
+            for l, o in zip(out_labels, outs):
                 batch_logs[l] = o
 
             callbacks.on_batch_end(batch_index, batch_logs)
@@ -135,7 +138,7 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
                     if not isinstance(val_outs, list):
                         val_outs = [val_outs]
                     # same labels assumed
-                    for l, o in zip(out_labels, val_outs[1:]):
+                    for l, o in zip(out_labels, val_outs):
                         epoch_logs['val_' + l] = o
         callbacks.on_epoch_end(epoch, epoch_logs)
         if callback_model.stop_training:
@@ -143,8 +146,52 @@ def _fit_loop(self, f, ins, out_labels=None, batch_size=32,
     callbacks.on_train_end()
     return self.history
 
-# Monkey-patch kgp.models.Model
+def predict(self, x, batch_size=32, learning_phase=0., verbose=0):
+        """Generates output predictions for the input samples.
+
+        Computation is done in batches.
+
+        # Arguments
+            x: the input data, as a Numpy array
+                (or list of Numpy arrays if the model has multiple outputs).
+            batch_size: integer.
+            verbose: verbosity mode, 0 or 1.
+
+        # Returns
+            Numpy array(s) of predictions.
+
+        # Raises
+            ValueError: In case of mismatch between the provided
+                input data and the model's expectations,
+                or in case a stateful model receives a number of samples
+                that is not a multiple of the batch size.
+        """
+        # validate user data
+        x = _standardize_input_data(x, self._feed_input_names,
+                                    self._feed_input_shapes,
+                                    check_batch_axis=False)
+        if self.stateful:
+            if x[0].shape[0] > batch_size and x[0].shape[0] % batch_size != 0:
+                raise ValueError('In a stateful network, '
+                                 'you should only pass inputs with '
+                                 'a number of samples that can be '
+                                 'divided by the batch size. Found: ' +
+                                 str(x[0].shape[0]) + ' samples. '
+                                 'Batch size: ' + str(batch_size) + '.')
+
+        # prepare inputs, delegate logic to _predict_loop
+        if self.uses_learning_phase and not isinstance(K.learning_phase(), int):
+            ins = x + [learning_phase]
+        else:
+            ins = x
+        self._make_predict_function()
+        f = self.predict_function
+        return self._predict_loop(f, ins,
+                                  batch_size=batch_size, verbose=verbose)
+
+# Monkey-patch keras.models.Model
 Model._fit_loop = _fit_loop
+Model.predict = predict
 
 
 def _on_batch_end(self, batch, logs=None):
@@ -153,7 +200,8 @@ def _on_batch_end(self, batch, logs=None):
     self.seen += batch_size
 
     for k, v in logs.items():
-        if k == 'ids': continue
+        if k == 'ids':
+            continue
         if k in self.totals:
             self.totals[k] += v * batch_size
         else:

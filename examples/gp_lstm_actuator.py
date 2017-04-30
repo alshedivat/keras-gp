@@ -12,11 +12,11 @@ from keras.callbacks import EarlyStopping
 
 # Dataset interfaces
 from kgp.datasets.sysid import load_data
-from kgp.datasets.data_utils import preprocess_data
+from kgp.datasets.data_utils import data_to_seq, standardize_data
 
 # Model assembling and executing
 from kgp.utils.assemble import load_NN_configs, load_GP_configs, assemble
-from kgp.utils.execute import train
+from kgp.utils.experiment import train
 
 # Metrics & losses
 from kgp.losses import gen_gp_loss
@@ -25,26 +25,32 @@ from kgp.metrics import root_mean_squared_error as RMSE
 
 def main():
     # Load data
-    X_train, y_train = load_data('actuator', stop=45.)
-    X_valid, y_valid = load_data('actuator', start=45., stop=55.)
-    X_test, y_test = load_data('actuator', start=55.)
+    X, y = load_data('actuator', use_targets=False)
+    X_seq, y_seq = data_to_seq(X, y,
+        t_lag=32, t_future_shift=1, t_future_steps=1, t_sw_step=1)
+
+    # Split
+    train_end = int((45. / 100.) * len(X_seq))
+    test_end = int((90. / 100.) * len(X_seq))
+    X_train, y_train = X_seq[:train_end], y_seq[:train_end]
+    X_test, y_test = X_seq[train_end:test_end], y_seq[train_end:test_end]
+    X_valid, y_valid = X_seq[test_end:], y_seq[test_end:]
+
     data = {
-        'train': (X_train, y_train),
-        'valid': (X_valid, y_valid),
-        'test': (X_test, y_test),
+        'train': [X_train, y_train],
+        'valid': [X_valid, y_valid],
+        'test': [X_test, y_test],
     }
 
-    data = preprocess_data(data,
-                           standardize=True,
-                           multiple_outputs=True,
-                           t_lag=10,
-                           t_future_shift=1,
-                           t_future_steps=1,
-                           t_sw_step=1)
+    # Re-format targets
+    for set_name in data:
+        y = data[set_name][1]
+        y = y.reshape((-1, 1, np.prod(y.shape[1:])))
+        data[set_name][1] = [y[:,:,i] for i in xrange(y.shape[2])]
 
     # Model & training parameters
     nb_train_samples = data['train'][0].shape[0]
-    input_shape = data['train'][0].shape[1:]
+    input_shape = list(data['train'][0].shape[1:])
     nb_outputs = len(data['train'][1])
     gp_input_shape = (1,)
     batch_size = 128

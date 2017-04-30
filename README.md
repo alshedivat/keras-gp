@@ -57,13 +57,13 @@ model.compile(optimizer=Adam(1e-2), loss=loss)
 Note that KGP models support arbitrary off-the-shelf optimizers from Keras.
 
 **Further resources:**
-- [Tutorials](https://github.com/alshedivat/kgp/tutorials) (*to be added soon*).
-- A couple of [examples](https://github.com/alshedivat/kgp/tree/master/examples).
+- A [quick tutorial](https://github.com/alshedivat/kgp/tutorials) that walks you through the key components of the library.
+- A few more [examples](https://github.com/alshedivat/kgp/tree/master/examples).
 
 
 ## Installation
 
-KGP depends on [Keras](https://github.com/fchollet/keras/) and requires either [Theano](http://deeplearning.net/software/theano/) or [Tensorflow](http://tensorflow.org/) being installed.
+KGP depends on [Keras](https://github.com/fchollet/keras/) and requires either [Theano](http://deeplearning.net/software/theano/) or [TensorFlow](http://tensorflow.org/) being installed.
 The GPML backend requires either MATLAB or Octave and a corresponding Python interface package: [Oct2Py](https://blink1073.github.io/oct2py/) for Octave or the [MATLAB engine for Python](https://www.mathworks.com/help/matlab/matlab-engine-for-python.html).
 Generally, MATLAB backend seems to provide faster runtime.
 However, if you compile the latest version of Octave with JIT and OpenBLAS support, the overhead gets reduced to minimum.

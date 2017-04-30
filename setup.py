@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name='kgp',
-    version='0.3.2',
+    version='0.3.3',
     packages=find_packages(),
     description='GP models for Keras.',
     long_description=read('README.md'),
@@ -19,7 +19,7 @@ setup(
     ],
     extras_require = {
         'matlab_engine':  ['matlab'],
-        'octave_engine':  ['oct2py==3.9.0'],
+        'octave_engine':  ['oct2py==3.9.2'],
     },
     package_data = {
         '': ['*.yaml', '*.m'],

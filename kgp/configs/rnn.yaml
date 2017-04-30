@@ -9,7 +9,7 @@
       name: H
       activation: {H_activation!r}
       return_sequences: False
-      output_dim: {H_dim:d}
+      units: {H_dim:d}
       dropout: {dropout_W:f}
       recurrent_dropout: {dropout_U:f}
     dropout: {dropout:f}
@@ -24,7 +24,7 @@
       name: H1
       activation: {H_activation!r}
       return_sequences: True
-      output_dim: {H_dim:d}
+      units: {H_dim:d}
       dropout: {dropout_W:f}
       recurrent_dropout: {dropout_U:f}
     dropout: {dropout:f}
@@ -34,7 +34,7 @@
       name: H2
       activation: {H_activation!r}
       return_sequences: False
-      output_dim: {H_dim:d}
+      units: {H_dim:d}
       dropout: {dropout_W:f}
       recurrent_dropout: {dropout_U:f}
     dropout: {dropout:f}

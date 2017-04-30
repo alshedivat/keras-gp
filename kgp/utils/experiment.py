@@ -7,21 +7,9 @@ import warnings
 
 import numpy as np
 
-from contextlib import contextmanager
-from timeit import default_timer
-
 from keras.callbacks import ModelCheckpoint
 
 from kgp.metrics import root_mean_squared_error as RMSE
-
-
-@contextmanager
-def elapsed_timer():
-    start = default_timer()
-    elapsed = lambda: default_timer() - start
-    yield lambda: elapsed()
-    end = default_timer()
-    elapsed = lambda: end - start
 
 
 def train(model, data,
@@ -32,7 +20,7 @@ def train(model, data,
           checkpoint_monitor='val_loss',
           verbose=1,
           **fit_kwargs):
-    '''Train the model on the data.
+    """Train the model on the data.
 
     Arguments:
     ----------
@@ -48,7 +36,7 @@ def train(model, data,
     Returns:
     --------
         history : training history
-    '''
+    """
     X_train, y_train = data['train']
     X_test, y_test = data['test']
     validation_data = data['valid'] if 'valid' in data else None
@@ -61,10 +49,12 @@ def train(model, data,
 
     # Update list of callbacks
     if checkpoint is not None:
-        callbacks += [ModelCheckpoint('checkpoints/%s.h5' % checkpoint,
-                                      monitor=checkpoint_monitor,
-                                      save_weights_only=True,
-                                      save_best_only=True)]
+        callbacks += [
+            ModelCheckpoint('checkpoints/%s.h5' % checkpoint,
+                            monitor=checkpoint_monitor,
+                            save_weights_only=True,
+                            save_best_only=True)
+        ]
 
     # Train the model
     if verbose:

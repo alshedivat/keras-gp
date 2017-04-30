@@ -51,7 +51,7 @@ def maybe_download(data_path, dataset_name, verbose=1):
 
 def load_data(dataset_name, t_step=1, start=0., stop=100.,
               use_targets=True, batch_size=None, verbose=1):
-    '''Load the system identification data.
+    """Load the system identification data.
 
     Arguments:
     ----------
@@ -62,7 +62,7 @@ def load_data(dataset_name, t_step=1, start=0., stop=100.,
         use_targets : bool (default: True)
         batch_size : uint or None (default: None)
         verbose : uint (default: 1)
-    '''
+    """
     if dataset_name not in {'actuator', 'drives'}:
         raise ValueError("Unknown dataset: %s" % dataset_name)
 

@@ -8,22 +8,33 @@ import warnings
 
 import numpy as np
 
+from contextlib import contextmanager
 from timeit import default_timer
 
 from keras.callbacks import Callback
 
 from .metrics import mean_squared_error as MSE
-from .utils.execute import elapsed_timer
+
+
+@contextmanager
+def elapsed_timer():
+    start = default_timer()
+    elapsed = lambda: default_timer() - start
+    yield lambda: elapsed()
+    end = default_timer()
+    elapsed = lambda: end - start
 
 
 class UpdateGP(Callback):
     """Performs GP updates at the beginning of each epoch during training.
     """
-    def __init__(self, ins, val_ins=None, batch_size=128, gp_n_iter=1):
+    def __init__(self, ins, val_ins=None,
+                 batch_size=128, gp_n_iter=1, verbose=0):
         self.training_data = ins
         self.validation_data = val_ins
         self.batch_size = batch_size
         self.gp_n_iter = gp_n_iter
+        self.verbose = verbose
 
     def set_params(self, params):
         self.params = params
@@ -36,25 +47,25 @@ class UpdateGP(Callback):
         X, Y = self.training_data
 
         # Do forward pass
-        H = self.model.transform(X, self.batch_size)
+        H = self.model.transform(X, self.batch_size, learning_phase=1.)
 
         # Update GPs
         gp_update_elapsed = []
         for gp, h, y in zip(self.model.output_gp_layers, H, Y):
             # Update GP data (and grid if necessary)
-            gp.backend.update_data('tr', h, y)
+            gp.backend.update_data('tr', h, y, verbose=self.verbose)
             if gp.update_grid and (epoch % gp.update_grid == 0):
-                gp.backend.update_grid('tr')
+                gp.backend.update_grid('tr', verbose=self.verbose)
 
             # Train GP & get derivatives
             with elapsed_timer() as elapsed:
-                gp.hyp = gp.backend.train(self.gp_n_iter)
-                gp.dlik_dh = gp.backend.get_dlik_dx('tr')
+                gp.hyp = gp.backend.train(self.gp_n_iter, verbose=self.verbose)
+                gp.dlik_dh = gp.backend.get_dlik_dx('tr', verbose=self.verbose)
             gp_update_elapsed.append(elapsed())
 
             # Compute MSE and NLML
-            gp.mse = MSE(y, gp.backend.predict(h))
-            gp.nlml = gp.backend.evaluate('tr')
+            nlml, preds = gp.backend.eval_predict(h)
+            gp.nlml, gp.mse = nlml, MSE(y, preds)
         logs['gp_update_elapsed'] = np.mean(gp_update_elapsed)
 
     def on_batch_begin(self, batch, logs=None):
@@ -74,8 +85,8 @@ class UpdateGP(Callback):
             X_val, Y_val = self.validation_data
             H_val = self.model.transform(X_val, self.batch_size)
             for gp, h, y in zip(self.model.output_gp_layers, H_val, Y_val):
-                logs['val_nlml'] = gp.backend.evaluate('val', h, y)
-                logs['val_mse'] = MSE(y, gp.backend.predict(h))
+                nlml, preds = gp.backend.eval_predict(h, verbose=self.verbose)
+                logs['val_nlml'], logs['val_mse'] = nlml, MSE(y, preds)
 
 
 class Timer(Callback):

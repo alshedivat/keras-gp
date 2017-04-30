@@ -12,11 +12,15 @@ from pprint import pprint
 _gp_train_epoch = """
 hyp = minimize(hyp, @gp, -{n_iter:d}, {inf}, {mean}, {cov}, {lik}, X_tr, y_tr);
 """
+_gp_evaluate = """
+[nlZ dnlZ post     ] = gp(hyp, {inf}, {mean}, {cov}, {lik}, {X}, {y});
+"""
 _gp_predict = """
 [ymu ys2 fmu fs2   ] = gp(hyp, {inf}, {mean}, {cov}, {lik}, X_tr, y_tr, X_tst);
 """
-_gp_evaluate = """
-[nlZ dnlZ          ] = gp(hyp, {inf}, {mean}, {cov}, {lik}, {X}, {y});
+_gp_predict_grid = """
+[post nlZ dnlZ     ] = infGrid(hyp, {mean}, {cov}, {lik}, X_tr, y_tr, opt);
+[fmu fs2 ymu ys2   ] = post.predict(X_tst);
 """
 _gp_dlik = """
 [dlik_dx           ] = dlik(hyp, {mean}, {cov}, {lik}, {dcov}, {X}, {y});
@@ -104,18 +108,20 @@ class GPML(object):
         if inf == 'infGrid':
             assert grid_kwargs is not None, \
                 "GPML: No arguments provided for grid generation for infGrid."
-            self.eng.push('k', grid_kwargs['k'])
-            self.eng.push('eq', grid_kwargs['eq'])
+            self.eng.push('k', float(grid_kwargs['k']))
+            self.eng.push('eq', float(grid_kwargs['eq']))
             cov = ','.join(input_dim * ['{@%s}' % cov])
             if input_dim > 1:
                 cov = '{' + cov + '}'
             hyp['cov'] = np.tile(hyp['cov'], (1, input_dim))
             self.config['cov'] = "{@covGrid, %s, xg}" % cov
             self.config['dcov'] = "[]"
+            self.using_grid = True
         else:
             hyp['cov'] = np.asarray(hyp['cov'])
             self.config['cov'] = "{@%s}" % cov
             self.config['dcov'] = "@d%s" % cov
+            self.using_grid = False
 
         self.eng.push('hyp', hyp)
         self.eng.push('opt', opt)
@@ -125,7 +131,7 @@ class GPML(object):
             print("GP configuration:")
             pprint(self.config)
 
-    def update_data(self, which_set, X, y=None):
+    def update_data(self, which_set, X, y=None, verbose=0):
         """Update data in GP backend.
         """
         assert which_set in {'tr', 'tst', 'val', 'tmp'}
@@ -133,12 +139,12 @@ class GPML(object):
         if y is not None:
             self.eng.push('y_' + which_set, y)
 
-    def update_grid(self, which_set):
+    def update_grid(self, which_set, verbose=0):
         """Update grid for grid-based GP inference.
         """
         assert which_set in {'tr', 'tst', 'val', 'tmp'}
         self.config.update({'X': 'X_' + which_set, 'y': None})
-        self.eng.eval(_gp_create_grid.format(**self.config), verbose=0)
+        self.eng.eval(_gp_create_grid.format(**self.config), verbose=verbose)
 
     def evaluate(self, which_set, X=None, y=None, verbose=0):
         """Evaluate GP for given X and y.
@@ -159,7 +165,12 @@ class GPML(object):
         self.update_data('tst', X)
         if X_tr is not None and y_tr is not None:
             self.update_data('tr', X_tr, y_tr)
-        self.eng.eval(_gp_predict.format(**self.config), verbose=verbose)
+        if self.using_grid:
+            self.eng.eval(_gp_predict_grid.format(**self.config),
+                          verbose=verbose)
+        else:
+            self.eng.eval(_gp_predict.format(**self.config),
+                          verbose=verbose)
         preds = self.eng.pull('ymu')
         if return_var:
             preds = (preds, self.eng.pull('ys2'))
@@ -184,3 +195,17 @@ class GPML(object):
         self.eng.eval(_gp_dlik.format(**self.config), verbose=verbose)
         dlik_dx = self.eng.pull('dlik_dx')
         return dlik_dx
+
+    def eval_predict(self, X, X_tr=None, y_tr=None, verbose=0):
+        """Use the grid-specific fast evaluation and prediction.
+        """
+        self.update_data('tst', X)
+        if X_tr is not None and y_tr is not None:
+            self.update_data('tr', X_tr, y_tr)
+        if self.using_grid:
+            self.eng.eval(_gp_predict_grid.format(**self.config),
+                          verbose=verbose)
+        else:
+            self.eng.eval(_gp_evaluate.format(**self.config), verbose=verbose)
+            self.eng.eval(_gp_predict.format(**self.config), verbose=verbose)
+        return self.eng.pull('nlZ'), self.eng.pull('ymu')
