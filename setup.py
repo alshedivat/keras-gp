@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name='kgp',
-    version='0.3.3',
+    version='0.3.2',
     packages=find_packages(),
     description='GP models for Keras.',
     long_description=read('README.md'),
@@ -15,7 +15,7 @@ setup(
     url='https://github.com/alshedivat/kgp',
     license='MIT',
     install_requires=[
-        'numpy>=1.9', 'keras>=2.0', 'tensorflow', 'pyyaml', 'six',
+        'numpy>=1.11', 'keras>=2.0', 'tensorflow', 'pyyaml', 'six',
     ],
     extras_require = {
         'matlab_engine':  ['matlab'],
