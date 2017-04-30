@@ -48,7 +48,7 @@ def assemble_mlp(input_shape, output_shape):
     hidden = Dropout(0.5)(hidden)
     hidden = Dense(64, activation='relu', name='dense3')(hidden)
     hidden = Dropout(0.25)(hidden)
-    hidden = Dense(1, activation='relu', name='dense4')(hidden)
+    hidden = Dense(2, activation='relu', name='dense4')(hidden)
     outputs = Dense(1, activation='linear')(hidden)
     return Model(inputs=inputs, outputs=outputs)
 

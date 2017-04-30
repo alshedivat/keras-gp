@@ -95,7 +95,8 @@ def main():
     # Construct & compile the model
     model = assemble_mlp(input_shape, output_shape, batch_size,
                          nb_train_samples=len(X_train))
-    model.compile(optimizer=Adam(1e-4), loss='mse')
+    loss = [gen_gp_loss(gp) for gp in model.output_layers]
+    model.compile(optimizer=Adam(1e-4), loss=loss)
 
     # Load saved weights (if exist)
     if os.path.isfile('checkpoints/msgp_mlp_kin40k.h5'):
