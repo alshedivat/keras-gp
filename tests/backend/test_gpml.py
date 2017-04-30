@@ -25,7 +25,7 @@ if not AVAILABLE_ENGINES:
 
 gp_test_config = {
     'input_dim': 1,
-    'hyp': {'lik': -2.0, 'cov': np.array([[-0.7], [0.0]])},
+    'hyp': {'lik': -2.0, 'mean': [], 'cov': np.array([[-0.7], [0.0]])},
     'opt': {},
     'inf': 'infExact',
     'mean': 'meanZero',
@@ -37,14 +37,14 @@ gp_test_config = {
 
 msgp_test_config = {
     'input_dim': 1,
-    'hyp': {'lik': -2.0, 'cov': np.array([[-0.7], [0.0]])},
+    'hyp': {'lik': -2.0, 'mean': [], 'cov': np.array([[-0.7], [0.0]])},
     'opt': {'cg_maxit': 500, 'cg_tol': 1e-4},
     'inf': 'infGrid',
     'mean': 'meanZero',
     'cov': 'covSEiso',
     'lik': 'likGauss',
     'dlik': 'dlikGrid',
-    'grid_kwargs': {'eq': 1, 'k': 1e2},
+    'grid_kwargs': {'eq': 1, 'k': 100},
     'verbose': 0,
 }
 

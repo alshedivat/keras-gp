@@ -108,8 +108,8 @@ class GPML(object):
         if inf == 'infGrid':
             assert grid_kwargs is not None, \
                 "GPML: No arguments provided for grid generation for infGrid."
-            self.eng.push('k', grid_kwargs['k'])
-            self.eng.push('eq', grid_kwargs['eq'])
+            self.eng.push('k', float(grid_kwargs['k']))
+            self.eng.push('eq', float(grid_kwargs['eq']))
             cov = ','.join(input_dim * ['{@%s}' % cov])
             if input_dim > 1:
                 cov = '{' + cov + '}'
