@@ -69,7 +69,7 @@ def main():
     input_shape = data['train'][0].shape[1:]
     output_shape = data['train'][1].shape[1:]
     batch_size = 128
-    epochs = 1
+    epochs = 100
 
     # Construct & compile the model
     model = assemble_mlp(input_shape, output_shape)
