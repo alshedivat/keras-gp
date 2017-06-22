@@ -67,12 +67,12 @@ class GPML(object):
         self.eng = Engine(**engine_kwargs)
         self.eng.addpath(gpml_path)
         self.eng.eval('startup', verbose=0)
-
+        
         utils_path = os.path.join(os.path.dirname(__file__), 'utils')
         self.eng.addpath(utils_path)
 
     def configure(self, input_dim, hyp, opt, inf, mean, cov, lik, dlik,
-                  grid_kwargs=None, verbose=1):
+                  grid_kwargs=None, cov_args=None, mean_args=None, verbose=1):
         """Configure GPML-based Guassian process.
 
         Arguments:
@@ -101,7 +101,12 @@ class GPML(object):
         """
         self.config = {}
         self.config['lik']  = "{@%s}" % lik
-        self.config['mean'] = "{@%s}" % mean
+
+        if mean_args is None:
+            self.config['mean'] = "{@%s}" % mean
+        else:
+            self.config['mean'] = '{@%s, %s}' % (mean, ', '.join(e if type(e) == str else repr(e) for e in mean_args))
+        
         self.config['inf']  = "{@(varargin) %s(varargin{:}, opt)}" % inf
         self.config['dlik'] = "@(varargin) %s(varargin{:}, opt)" % dlik
 
@@ -110,7 +115,12 @@ class GPML(object):
                 "GPML: No arguments provided for grid generation for infGrid."
             self.eng.push('k', float(grid_kwargs['k']))
             self.eng.push('eq', float(grid_kwargs['eq']))
-            cov = ','.join(input_dim * ['{@%s}' % cov])
+            if cov_args is None:
+                cov = ','.join(input_dim * ['{@%s}' % cov])
+            else:
+                cov = ','.join(input_dim * ['{@%s, ' % cov + 
+                                            ', '.join(repr(e) for e in cov_args) + 
+                                            '}'])
             if input_dim > 1:
                 cov = '{' + cov + '}'
             hyp['cov'] = np.tile(hyp['cov'], (1, input_dim))
