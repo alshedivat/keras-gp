@@ -1,10 +1,5 @@
 """
-MSGP-MLP regression on Kin40k data.
-Reference: https://arxiv.org/abs/1511.02222
-
-This example showcases semi-stochastic training
-of GP-MLP model from scratch. Note that the original
-paper used full-batch pretraining-finetuning scheme.
+MSGP-MLP regression on Kin40k data using Spectral Mixture Kernel.
 """
 from __future__ import print_function
 
@@ -107,12 +102,12 @@ def main():
     model.compile(optimizer=Adam(1e-4), loss=loss)
 
     # Load saved weights (if exist)
-    if os.path.isfile('checkpoints/msgp_mlp_kin40k.h5'):
-        model.load_weights('checkpoints/msgp_mlp_kin40k.h5', by_name=True)
+    if os.path.isfile('checkpoints/msgp_sm_kernel_mlp_kin40k.h5'):
+        model.load_weights('checkpoints/msgp_sm_kernel_mlp_kin40k.h5', by_name=True)
 
     # Train the model
     history = train(model, data, callbacks=[], gp_n_iter=5,
-                    checkpoint='msgp_mlp_kin40k', checkpoint_monitor='val_mse',
+                    checkpoint='msgp_sm_kernel_mlp_kin40k', checkpoint_monitor='val_mse',
                     epochs=epochs, batch_size=batch_size, verbose=1)
 
     # Test the model
