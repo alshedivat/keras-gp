@@ -52,7 +52,9 @@ class GP(Layer):
     def __init__(self, hyp, batch_size, nb_train_samples, opt=None,
                  inf='infExact', lik='likGauss', dlik='dlikExact',
                  mean='meanZero', cov='covSEiso',
-                 grid_kwargs=None, update_grid=0,
+                 grid_kwargs=None, 
+                 cov_args=None, mean_args=None,
+                 update_grid=0,
                  engine=None, engine_kwargs=None,
                  gpml_path=None, verbose=1):
         self.hyp = hyp
@@ -66,6 +68,8 @@ class GP(Layer):
             'dlik': dlik,
             'mean': mean,
             'cov': cov,
+            'cov_args': cov_args, 
+            'mean_args': mean_args,
             'grid_kwargs': grid_kwargs,
             'verbose': verbose,
         }
