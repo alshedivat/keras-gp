@@ -67,7 +67,7 @@ class GPML(object):
         self.eng = Engine(**engine_kwargs)
         self.eng.addpath(gpml_path)
         self.eng.eval('startup', verbose=0)
-        
+
         utils_path = os.path.join(os.path.dirname(__file__), 'utils')
         self.eng.addpath(utils_path)
 
@@ -105,7 +105,7 @@ class GPML(object):
         if mean_args is None:
             self.config['mean'] = "{@%s}" % mean
         else:
-            self.config['mean'] = '{@%s, %s}' % (mean, ', '.join(e if type(e) == str else repr(e) for e in mean_args))
+            self.config['mean'] = '{@%s, %s}' % (mean, ', '.join(str(e) for e in mean_args))
         
         self.config['inf']  = "{@(varargin) %s(varargin{:}, opt)}" % inf
         self.config['dlik'] = "@(varargin) %s(varargin{:}, opt)" % dlik
@@ -119,7 +119,7 @@ class GPML(object):
                 cov = ','.join(input_dim * ['{@%s}' % cov])
             else:
                 cov = ','.join(input_dim * ['{@%s, ' % cov + 
-                                            ', '.join(repr(e) for e in cov_args) + 
+                                            ', '.join(str(e) for e in cov_args) + 
                                             '}'])
             if input_dim > 1:
                 cov = '{' + cov + '}'
