@@ -1,9 +1,9 @@
 Gaussian Processes for Keras
 ----------------------------
 
-[![Build Status](https://travis-ci.org/alshedivat/kgp.svg?branch=master)](https://travis-ci.org/alshedivat/kgp)
-[![Coverage Status](https://coveralls.io/repos/github/alshedivat/kgp/badge.svg?branch=master)](https://coveralls.io/github/alshedivat/kgp?branch=master)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/alshedivat/kgp/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/alshedivat/keras-gp.svg)](https://travis-ci.org/alshedivat/keras-gp)
+[![Coverage Status](https://coveralls.io/repos/github/alshedivat/keras-gp/badge.svg)](https://coveralls.io/github/alshedivat/keras-gp)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/alshedivat/keras-gp/blob/master/LICENSE)
 
 KGP extends [Keras](https://github.com/fchollet/keras/) with Gaussian Process (GP) layers.
 It allows one to build flexible GP models with kernels structured with [deep](http://jmlr.org/proceedings/papers/v51/wilson16.pdf) and [recurrent](https://arxiv.org/abs/1610.08936) networks built with Keras.
