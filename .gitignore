@@ -1,3 +1,7 @@
+# Misc
+sync
+.sync-exclude
+
 # Project specific
 /**/checkpoints/*
 /**/plots/*
