@@ -12,7 +12,7 @@ setup(
     long_description=read('README.md'),
     author='Maruan Al-Shedivat',
     author_email='maruan@alshedivat.com',
-    url='https://github.com/alshedivat/kgp',
+    url='https://github.com/alshedivat/keras-gp',
     license='MIT',
     install_requires=[
         'numpy>=1.11', 'keras>=2.0', 'tensorflow', 'pyyaml', 'six',
