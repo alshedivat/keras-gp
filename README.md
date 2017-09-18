@@ -57,7 +57,7 @@ model.compile(optimizer=Adam(1e-2), loss=loss)
 Note that KGP models support arbitrary off-the-shelf optimizers from Keras.
 
 **Further resources:**
-- A [quick tutorial](https://github.com/alshedivat/kgp/tutorials) that walks you through the key components of the library.
+- A [quick tutorial](https://github.com/alshedivat/keras-gp/tree/master/tutorials) that walks you through the key components of the library.
 - A few more [examples](https://github.com/alshedivat/kgp/tree/master/examples).
 
 
