@@ -143,8 +143,8 @@ class Model(KerasModel):
         """
         # Validate user data
         X = _standardize_input_data(
-            X, self.input_names, self.internal_input_shapes,
-            check_batch_axis=False)
+            X, self._feed_input_names, self._feed_input_shapes,
+            check_batch_axis=False, exception_prefix='input')
 
         H = self.transform(X, batch_size=batch_size)
 
@@ -228,8 +228,8 @@ class Model(KerasModel):
 
         # Validate user data
         X = _standardize_input_data(
-            X, self.input_names, self.internal_input_shapes,
-            check_batch_axis=False)
+            X, self._feed_input_names, self._feed_input_shapes,
+            check_batch_axis=False, exception_prefix='input')
 
         H = self.transform(X, batch_size=batch_size)
 

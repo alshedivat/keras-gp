@@ -15,7 +15,7 @@ setup(
     url='https://github.com/alshedivat/keras-gp',
     license='MIT',
     install_requires=[
-        'numpy>=1.11', 'keras>=2.0', 'tensorflow', 'pyyaml', 'six',
+        'numpy>=1.11', 'keras==2.1.3', 'tensorflow>=1.0', 'pyyaml', 'six',
     ],
     extras_require = {
         'matlab_engine':  ['matlab'],
