@@ -19,7 +19,7 @@ KGP is compatible with: Python **2.7-3.5**.
 In particular, this package implements the method described in our paper: <br>
 **Learning Scalable Deep Kernels with Recurrent Structure** <br>
 Maruan Al-Shedivat, Andrew Gordon Wilson, Yunus Saatchi, Zhiting Hu, Eric P. Xing <br>
-[arXiv:1610.08936](https://arxiv.org/abs/1610.08936), 2016.
+[Journal of Machine Learning Research](https://arxiv.org/abs/1610.08936), 2017.
 
 
 ## Getting started
@@ -101,12 +101,13 @@ Contributions and especially bug reports are more than welcome.
 ## Citation
 
 ```bibtex
-@article{alshedivat2016srk,
-  title={Learning Scalable Deep Kernels with Recurrent Structure},
-  author={Al-Shedivat, Maruan and Wilson, Andrew G and Saatchi, Yunus and Hu, Zhiting and Xing, Eric P},
-  journal={arXiv preprint arXiv:1610.08936},
-  year={2016}
-}
+@article{al2017learning,
+  title={Learning scalable deep kernels with recurrent structure},
+  author={Al-Shedivat, Maruan and Wilson, Andrew Gordon and Saatchi, Yunus and Hu, Zhiting and Xing, Eric P},
+  journal={Journal of Machine Learning Research},
+  volume={18},
+  number={1},
+  year={2017}
 ```
 
 ## License
