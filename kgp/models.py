@@ -1,23 +1,14 @@
-"""
-Gaussian Process models for Keras 2.
-"""
+"""Gaussian Process models for Keras 2."""
+
 from __future__ import absolute_import
+from __future__ import division
 from __future__ import print_function
 
-import os
-import sys
-import numpy as np
-
-from keras import optimizers
 from keras.models import Model as KerasModel
 from keras.engine.topology import _to_list
 from keras.engine.training import _standardize_input_data
 
-from .callbacks import Timer
 from .callbacks import UpdateGP
-
-# Backend for neural networks
-from keras import backend as K
 
 
 class Model(KerasModel):

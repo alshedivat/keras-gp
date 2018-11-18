@@ -1,4 +1,4 @@
-"""MSGP-LSTM regression on Actuator data."""
+"""MSGP-LSTM regression on Actuator data with manually specified grid."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -70,7 +70,7 @@ def main():
         'hyp_cov': [[-0.7], [0.0]],
         'opt': {'cg_maxit': 500, 'cg_tol': 1e-4},
         'grid_kwargs': {'eq': 1, 'k': 1e2},
-        'update_grid': True,
+        'update_grid': False,  # when using manual grid, turn off grid updates
     }
 
     # Retrieve model config
@@ -83,6 +83,11 @@ def main():
                                  batch_size=batch_size,
                                  nb_train_samples=nb_train_samples,
                                  params=gp_params)
+
+    # Specify manual grid for MSGP (100 equidistant points per input dimension).
+    # Note: each np.ndarray in the xg must be a column vector.
+    gp_configs['MSGP']['config']['grid_kwargs']['xg'] = (
+            gp_input_shape[0] * [np.linspace(-1.0, 1.0, 100)[:, None]])
 
     # Construct & compile the model
     model = assemble('GP-LSTM', [nn_configs['1H'], gp_configs['MSGP']])

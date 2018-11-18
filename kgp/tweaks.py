@@ -2,7 +2,10 @@
 Tweaks for KGP and original Keras classes or methods.
 To keep the primary KGP code clean, all tweaks are kept in a separate file.
 """
+
 from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import numpy as np
 
