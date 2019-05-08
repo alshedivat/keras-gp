@@ -107,7 +107,7 @@ Contributions and especially bug reports are more than welcome.
   journal={Journal of Machine Learning Research},
   volume={18},
   number={1},
-  year={2017}
+  year={2017},
 }
 ```
 
