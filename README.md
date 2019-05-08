@@ -101,7 +101,7 @@ Contributions and especially bug reports are more than welcome.
 ## Citation
 
 ```bibtex
-@article{al2017learning,
+@article{alshedivat2017srk,
   title={Learning scalable deep kernels with recurrent structure},
   author={Al-Shedivat, Maruan and Wilson, Andrew Gordon and Saatchi, Yunus and Hu, Zhiting and Xing, Eric P},
   journal={Journal of Machine Learning Research},

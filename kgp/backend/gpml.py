@@ -1,7 +1,8 @@
-"""
-GPML backend for Gaussian processes.
-"""
+"""GPML backend for Gaussian processes."""
+
 from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import os
 import numpy as np
@@ -28,6 +29,7 @@ _gp_dlik = """
 _gp_create_grid = """
 xg = covGrid('create', {X}, eq, k);
 """
+
 
 class GPML(object):
     """Class that implements backend functionality for Gaussian processes.
@@ -60,8 +62,8 @@ class GPML(object):
                 if not os.path.isfile(os.path.join(gpml_path, 'startup.m')):
                     raise ValueError(
                         "Neither GPML_PATH is provided nor GPML library is "
-                        "available directly from KGP. "
-                        "Please make sure you cloned KGP *recursively*.")
+                        "available directly from keras-gp. "
+                        "Please make sure you cloned keras-gp *recursively*.")
 
         engine_kwargs = engine_kwargs or {}
         self.eng = Engine(**engine_kwargs)
@@ -94,10 +96,14 @@ class GPML(object):
             dlik : str
                 Name of the function that computes dlik/dx.
             grid_kwargs : dict
-                'eq' : uint (default: 1)
+                'eq' : uint
                     Whether to enforce an equispaced grid.
                 'k' : uint or float in (0, 1]
                     Number of inducing points per dimension.
+                'xg' : list
+                    Manually specified grid. Must be represented in the form of
+                    a list of np.ndarrays that specify the grid points for each
+                    dimension.
         """
         self.config = {}
         self.config['lik']  = "{@%s}" % lik
@@ -105,22 +111,24 @@ class GPML(object):
         if mean_args is None:
             self.config['mean'] = "{@%s}" % mean
         else:
-            self.config['mean'] = '{@%s, %s}' % (mean, ', '.join(str(e) for e in mean_args))
+            self.config['mean'] = '{@%s, %s}' % (
+                mean, ', '.join(str(e) for e in mean_args))
         
         self.config['inf']  = "{@(varargin) %s(varargin{:}, opt)}" % inf
         self.config['dlik'] = "@(varargin) %s(varargin{:}, opt)" % dlik
 
         if inf == 'infGrid':
-            assert grid_kwargs is not None, \
-                "GPML: No arguments provided for grid generation for infGrid."
+            assert grid_kwargs is not None, (
+                "GPML: No arguments provided for grid generation for infGrid.")
             self.eng.push('k', float(grid_kwargs['k']))
             self.eng.push('eq', float(grid_kwargs['eq']))
+            if 'xg' in grid_kwargs:
+                self.eng.push('xg', grid_kwargs['xg'])
             if cov_args is None:
                 cov = ','.join(input_dim * ['{@%s}' % cov])
             else:
-                cov = ','.join(input_dim * ['{@%s, ' % cov + 
-                                            ', '.join(str(e) for e in cov_args) + 
-                                            '}'])
+                cov = ','.join(input_dim * [
+                    '{@%s, %s}' % (cov, ', '.join(str(e) for e in cov_args))])
             if input_dim > 1:
                 cov = '{' + cov + '}'
             hyp['cov'] = np.tile(hyp['cov'], (1, input_dim))

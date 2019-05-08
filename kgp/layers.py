@@ -1,7 +1,7 @@
-"""
-Gaussian Process layers for Keras.
-"""
+"""Gaussian Process layers for Keras."""
+
 from __future__ import absolute_import
+from __future__ import division
 from __future__ import print_function
 
 import numpy as np
