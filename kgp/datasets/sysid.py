@@ -15,8 +15,8 @@ from six.moves import urllib
 from six.moves import cPickle as pkl
 
 SOURCE_URLS = {
-    'actuator': 'https://www.cs.cmu.edu/~mshediva/assets/data/actuator.mat',
-    'drives': 'https://www.cs.cmu.edu/~mshediva/assets/data/NonlinearData.zip',
+    'actuator': 'https://www.cs.cmu.edu/~mshediva/data/actuator.mat',
+    'drives': 'https://www.cs.cmu.edu/~mshediva/data/NonlinearData.zip',
 }
 
 
